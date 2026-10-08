@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IGeLU Staff Mobile Q&A Guide (Multi-QR Version)</title>
+<style>
+  :root { 
+    --primary: #003366; 
+    --secondary: #4a90e2; 
+    --bg: #f4f6f9; 
+    --card-bg: #ffffff; 
+    --text: #333333; 
+    --staff-bg: #fff8e6; 
+    --staff-border: #f5a623; 
+  }
+  body { 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    background-color: var(--bg); 
+    color: var(--text); 
+    margin: 0; 
+    padding: 12px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    padding-bottom: 60px;
+  }
+  
+  .top-sticky {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    max-width: 450px;
+    background: var(--bg);
+    padding-top: 5px;
+    padding-bottom: 10px;
+    z-index: 1000;
+  }
+  
+  .header { 
+    text-align: center; 
+    padding: 12px 0; 
+    background: var(--primary); 
+    color: white; 
+    border-radius: 12px; 
+    margin-bottom: 10px; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .header h1 { margin: 0; font-size: 1.1rem; }
+  .header p { margin: 3px 0 0 0; font-size: 0.8rem; opacity: 0.85; }
+
+  .search-box {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border: 2px solid var(--secondary);
+    border-radius: 25px;
+    outline: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background: white;
+  }
+
+  .card-container { 
+    width: 100%; 
+    max-width: 450px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 16px; 
+  }
+  
+  .card { 
+    background: var(--card-bg); 
+    border-radius: 14px; 
+    padding: 16px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+    border-left: 5px solid var(--secondary); 
+  }
+  .card.hidden { display: none; }
+
+  .category { 
+    display: inline-block; 
+    background: #e8f0fe; 
+    color: #1a73e8; 
+    font-size: 0.75rem; 
+    font-weight: bold; 
+    padding: 3px 8px; 
+    border-radius: 4px; 
+    margin-bottom: 8px; 
+  }
+  
+  .question-zh { font-weight: bold; font-size: 1.05rem; color: var(--primary); margin-bottom: 4px; }
+  .question-en { font-size: 0.95rem; color: #555; margin-bottom: 12px; font-style: italic; }
+  .answer-zh { font-size: 0.95rem; line-height: 1.4; color: #222; margin-bottom: 6px; }
+  .answer-en { font-size: 0.9rem; line-height: 1.4; color: #444; margin-bottom: 12px; }
+  
+  .staff-note { 
+    background: var(--staff-bg); 
+    border: 1px dashed var(--staff-border); 
+    border-radius: 8px; 
+    padding: 8px 12px; 
+    font-size: 0.85rem; 
+    color: #8a6d3b; 
+    margin-top: 8px; 
+  }
+  
+  /* 多 QR Code 網格排版 */
+  .qr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .qr-container { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    background: #fafafa; 
+    border: 1px solid #eee; 
+    border-radius: 8px; 
+    padding: 8px; 
+  }
+  .qr-container img { width: 110px; height: 110px; }
+  .qr-label { font-size: 0.7rem; color: #666; margin-top: 4px; text-align: center; word-break: break-all; max-height: 2.8em; overflow: hidden; }
+
+  .no-result {
+    text-align: center;
+    color: #888;
+    padding: 30px 0;
+    font-size: 0.95rem;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-sticky">
+  <div class="header">
+    <h1>IGeLU 工作人員 Q&A 指南</h1>
+    <p>中英對照 ‧ 即時搜尋卡片</p>
+  </div>
+  <input type="text" id="searchInput" class="search-box" placeholder="🔍 輸入關鍵字（如：美術館, 醫院, WiFi...）" onkeyup="filterQA()">
+</div>
+
+<div class="card-container" id="cardContainer"><div class="card" data-search="交通 要怎麼走去捷運站? how do i get to the mrt station? 出了gisntu一樓大門，右轉直走約3分鐘，即可抵達mrt gongguan station。 after exiting the main entrance on the first floor of gisntu, turn right and walk straight for about 3 minutes to reach mrt gongguan station. "><span class="category">交通</span><div class="question-zh">要怎麼走去捷運站?</div><div class="question-en">How do I get to the MRT station?</div><div class="answer-zh">出了GISNTU一樓大門，右轉直走約3分鐘，即可抵達MRT Gongguan Station。</div><div class="answer-en">After exiting the main entrance on the first floor of GISNTU, turn right and walk straight for about 3 minutes to reach MRT Gongguan Station.</div></div><div class="card" data-search="交通 飯店接駁車什麼時候搭？在哪裡上車? when does the hotel shuttle bus depart? where do i board? 上午到會場的接駁車，請於k hotel dunnan及howard civil service international house門口，依手持igelu接駁指示牌的工作人員引導，發車時間為上午8:10及8:40。
+下午沒有安排飯店接駁車。 the morning shuttle buses to the venue will depart at 8:10 am and 8:40 am respectively, following the staff holding igelu shuttle signs at the entrances of k hotel dunnan and howard civil service international house.
+
+no hotel shuttle buses will be provided in the afternoon. 先確認問的是哪一種接駁車"><span class="category">交通</span><div class="question-zh">飯店接駁車什麼時候搭？在哪裡上車?</div><div class="question-en">When does the hotel shuttle bus depart? Where do I board?</div><div class="answer-zh">上午到會場的接駁車，請於K Hotel Dunnan及Howard Civil Service International House門口，依手持IGeLU接駁指示牌的工作人員引導，發車時間為上午8:10及8:40。<br>下午沒有安排飯店接駁車。</div><div class="answer-en">The morning shuttle buses to the venue will depart at 8:10 AM and 8:40 AM respectively, following the staff holding IGeLU shuttle signs at the entrances of K Hotel Dunnan and Howard Civil Service International House.<br><br>No hotel shuttle buses will be provided in the afternoon.</div><div class="staff-note"><b>💡 館員補充：</b>先確認問的是哪一種接駁車</div></div><div class="card" data-search="交通 social event接駁車什麼時候搭？在哪裡上車? when does the social event shuttle bus depart? where do i board? 接駁車將於當(19)日會議結束後，在gisntu大門口外，分17:10、17:40二梯次發車，每梯次4班車。請依手持igelu接駁指示牌的工作人員指引，優先搭乘最前方班次。 the shuttle buses will depart at 17:10 and 17:40 outside the main gate of gisntu after the meeting on the 19th, with 4 buses in each batch. please follow the directions of the staff holding the igelu shuttle bus signs and take priority for the first bus. 先確認問的是哪一種接駁車"><span class="category">交通</span><div class="question-zh">Social Event接駁車什麼時候搭？在哪裡上車?</div><div class="question-en">When does the Social Event shuttle bus depart? Where do I board?</div><div class="answer-zh">接駁車將於當(19)日會議結束後，在GISNTU大門口外，分17:10、17:40二梯次發車，每梯次4班車。請依手持IGeLU接駁指示牌的工作人員指引，優先搭乘最前方班次。</div><div class="answer-en">The shuttle buses will depart at 17:10 and 17:40 outside the main gate of GISNTU after the meeting on the 19th, with 4 buses in each batch. Please follow the directions of the staff holding the IGeLU shuttle bus signs and take priority for the first bus.</div><div class="staff-note"><b>💡 館員補充：</b>先確認問的是哪一種接駁車</div></div><div class="card" data-search="交通 若沒有搭乘接駁車，要怎麼自己去social event會場？ if i don't take the shuttle bus, how do i get to the social event venue by myself? 可以搭乘捷運，由公館(g07)站搭乘往松山方向列車至中正紀念堂站(g10/r08)下車後，至對面月台轉乘紅線(往淡水/北投方向)至台大醫院站(r09)下車，從2號出口出站後，步行約10分鐘即可抵達，請參考google map you can take the mrt. from gongguan (g07) ​​station, take the train towards songshan and get off at chiang kai-shek memorial hall station (g10/r08). then, go to the opposite platform and transfer to the red line (towards tamsui/beitou) and get off at national taiwan university hospital station (r09). exit from exit 2 and walk for about 10 minutes to reach the destination. please refer to google maps.
+https://www.google.com/maps/place/%e6%8d%b7%e9%81%8b%e5%8f%b0%e5%a4%a7%e9%86%ab%e9%99%a2%e7%ab%99/@25.0416647,121.51643,19z/data=!4m6!3m5!1s0x3442a9748d9cce7b:0xf10563299e28b4eb!8m2!3d25.0418222!4d121.5163318!16s%2fg%2f1q5bksrfy?entry=ttu&g_ep=egoymdi2mtawns4wikxmdsoasafqaw%3d%3d 指引站名時盡可能用路線代號+數字。提醒來賓可以不用買票, 直接刷信用卡就可以"><span class="category">交通</span><div class="question-zh">若沒有搭乘接駁車，要怎麼自己去Social Event會場？</div><div class="question-en">If I don't take the shuttle bus, how do I get to the Social Event venue by myself?</div><div class="answer-zh">可以搭乘捷運，由公館(G07)站搭乘往松山方向列車至中正紀念堂站(G10/R08)下車後，至對面月台轉乘紅線(往淡水/北投方向)至台大醫院站(R09)下車，從2號出口出站後，步行約10分鐘即可抵達，請參考google map</div><div class="answer-en">You can take the MRT. From Gongguan (G07) ​​station, take the train towards Songshan and get off at Chiang Kai-shek Memorial Hall station (G10/R08). Then, go to the opposite platform and transfer to the Red Line (towards Tamsui/Beitou) and get off at National Taiwan University Hospital station (R09). Exit from Exit 2 and walk for about 10 minutes to reach the destination. Please refer to Google Maps.<br>https://www.google.com/maps/place/%E6%8D%B7%E9%81%8B%E5%8F%B0%E5%A4%A7%E9%86%AB%E9%99%A2%E7%AB%99/@25.0416647,121.51643,19z/data=!4m6!3m5!1s0x3442a9748d9cce7b:0xf10563299e28b4eb!8m2!3d25.0418222!4d121.5163318!16s%2Fg%2F1q5bksrfy?entry=ttu&g_ep=EgoyMDI2MTAwNS4wIKXMDSoASAFQAw%3D%3D</div><div class="staff-note"><b>💡 館員補充：</b>指引站名時盡可能用路線代號+數字。提醒來賓可以不用買票, 直接刷信用卡就可以</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fplace%2F%25E6%258D%25B7%25E9%2581%258B%25E5%258F%25B0%25E5%25A4%25A7%25E9%2586%25AB%25E9%2599%25A2%25E7%25AB%2599%2F%4025.0416647%2C121.51643%2C19z%2Fdata%3D!4m6!3m5!1s0x3442a9748d9cce7b%3A0xf10563299e28b4eb!8m2!3d25.0418222!4d121.5163318!16s%252Fg%252F1q5bksrfy%3Fentry%3Dttu%26g_ep%3DEgoyMDI2MTAwNS4wIKXMDSoASAFQAw%253D%253D" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="交通 要怎麼從social event的場地回飯店 how do i get back to the hotel from the social event venue? 可以步行約10分鐘抵達捷運台大醫院站(r09)，再依您的住宿地點搭乘至鄰近捷運站。
+請參考飯店官方網站的住宿資訊或google map。 you can walk approximately 10 minutes to the national taiwan university hospital mrt station (r09), and then take the nearest mrt station depending on your accommodation location.
+
+please refer to the hotel's official website for accommodation information or google maps. "><span class="category">交通</span><div class="question-zh">要怎麼從Social Event的場地回飯店</div><div class="question-en">How do I get back to the hotel from the Social Event venue?</div><div class="answer-zh">可以步行約10分鐘抵達捷運台大醫院站(R09)，再依您的住宿地點搭乘至鄰近捷運站。<br>請參考飯店官方網站的住宿資訊或google map。</div><div class="answer-en">You can walk approximately 10 minutes to the National Taiwan University Hospital MRT station (R09), and then take the nearest MRT station depending on your accommodation location.<br><br>Please refer to the hotel's official website for accommodation information or Google Maps.</div></div><div class="card" data-search="交通 我有參加tour要去哪裡集合？什麼時候集合？  i’m joining the tour. where should i meet the group, and what time should i be there? tour a-c請於16:00-16:20，在b1報到/諮詢台兩側找手持tour指示牌的人員集合；
+tour d-f請於16:00-16:15，至一樓大廳找手持tour指示牌的人員集合。
+詳細集合位置圖請參考app或報到/諮詢台前的指引。 for tours a-c, please meet at the b1 registration/information desk between 16:00 and 16:20, where you will find the staff holding tour signs.
+for tours d-f, please meet at the lobby on the first floor between 16:00 and 16:15, where you will find the staff holding tour signs.
+
+for a detailed meeting point map, please refer to the app or the signs in front of the registration/information desk. 以步行方式在校內進行的行程a-c，就是在b1集合；
+搭接駁車離開學校的行程d-f，就是在1f大廳集合。"><span class="category">交通</span><div class="question-zh">我有參加Tour要去哪裡集合？什麼時候集合？</div><div class="question-en"> I’m joining the tour. Where should I meet the group, and what time should I be there?</div><div class="answer-zh">Tour A-C請於16:00-16:20，在B1報到/諮詢台兩側找手持Tour指示牌的人員集合；<br>Tour D-F請於16:00-16:15，至一樓大廳找手持Tour指示牌的人員集合。<br>詳細集合位置圖請參考App或報到/諮詢台前的指引。</div><div class="answer-en">For Tours A-C, please meet at the B1 registration/information desk between 16:00 and 16:20, where you will find the staff holding Tour signs.<br>For Tours D-F, please meet at the lobby on the first floor between 16:00 and 16:15, where you will find the staff holding Tour signs.<br><br>For a detailed meeting point map, please refer to the App or the signs in front of the registration/information desk.</div><div class="staff-note"><b>💡 館員補充：</b>以步行方式在校內進行的行程A-C，就是在B1集合；
+搭接駁車離開學校的行程D-F，就是在1F大廳集合。</div></div><div class="card" data-search="交通 我想去台北車站，搭捷運要怎麼換線? i want to go to taipei main station. how do i transfer lines on the mrt? 從公館站(g07)，搭乘往松山方向列車，在中正紀念堂站(g10/r08)下車後，至對面月台轉乘紅線(往淡水/北投方向)，即可抵達台北車站(bl10/r10)。
+請參考活動網站之交通指引：https://igelu.org/wp-content/uploads/2026/08/1.event-page_taipei-transportation-guide_rev20260828.pdf from gongguan station (g07), take the train towards songshan. get off at chiang kai-shek memorial hall station (g10/r08), ​​then transfer to the red line (towards tamsui/beitou) on the opposite platform to reach taipei main station (bl10/r10).
+
+please refer to the event website for transportation guidance: https://igelu.org/wp-content/uploads/2026/08/1.event-page_taipei-transportation-guide_rev20260828.pdf 指引站名時盡可能用路線代號+數字。提醒來賓可以不用買票, 直接刷信用卡就可以"><span class="category">交通</span><div class="question-zh">我想去台北車站，搭捷運要怎麼換線?</div><div class="question-en">I want to go to Taipei Main Station. How do I transfer lines on the MRT?</div><div class="answer-zh">從公館站(G07)，搭乘往松山方向列車，在中正紀念堂站(G10/R08)下車後，至對面月台轉乘紅線(往淡水/北投方向)，即可抵達台北車站(BL10/R10)。<br>請參考活動網站之交通指引：https://igelu.org/wp-content/uploads/2026/08/1.Event-page_Taipei-Transportation-Guide_rev20260828.pdf</div><div class="answer-en">From Gongguan Station (G07), take the train towards Songshan. Get off at Chiang Kai-shek Memorial Hall Station (G10/R08), ​​then transfer to the Red Line (towards Tamsui/Beitou) on the opposite platform to reach Taipei Main Station (BL10/R10).<br><br>Please refer to the event website for transportation guidance: https://igelu.org/wp-content/uploads/2026/08/1.Event-page_Taipei-Transportation-Guide_rev20260828.pdf</div><div class="staff-note"><b>💡 館員補充：</b>指引站名時盡可能用路線代號+數字。提醒來賓可以不用買票, 直接刷信用卡就可以</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Figelu.org%2Fwp-content%2Fuploads%2F2026%2F08%2F1.Event-page_Taipei-Transportation-Guide_rev20260828.pdf" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="交通 我要回飯店，該怎麼搭捷運？ i need to get back to the hotel. how do i take the mrt? 請參考活動網站之交通指引：https://igelu.org/wp-content/uploads/2026/08/1.event-page_taipei-transportation-guide_rev20260828.pdf please refer to the transportation guide on the event website: https://igelu.org/wp-content/uploads/2026/08/1.event-page_taipei-transportation-guide_rev20260828.pdf "><span class="category">交通</span><div class="question-zh">我要回飯店，該怎麼搭捷運？</div><div class="question-en">I need to get back to the hotel. How do I take the MRT?</div><div class="answer-zh">請參考活動網站之交通指引：https://igelu.org/wp-content/uploads/2026/08/1.Event-page_Taipei-Transportation-Guide_rev20260828.pdf</div><div class="answer-en">Please refer to the transportation guide on the event website: https://igelu.org/wp-content/uploads/2026/08/1.Event-page_Taipei-Transportation-Guide_rev20260828.pdf</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Figelu.org%2Fwp-content%2Fuploads%2F2026%2F08%2F1.Event-page_Taipei-Transportation-Guide_rev20260828.pdf" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="交通 我想去台北車站，從這裡搭計程車過去大約需要多少錢呢? i want to go to taipei main station. how much would a taxi ride from here cost approximately? 從集思台大會議中心搭乘計程車前往臺北車站，車程距離約為 4.8 公里，在順暢情況下預計耗時約 15 分鐘。預估車資大約在 nt$ 180 ～ nt$ 230 之間（依實際行駛路線、停等紅綠燈時間與塞車狀況而定）。 taking a taxi from the gis ntu conference center to taipei main station is approximately 4.8 kilometers and should take about 15 minutes under normal traffic conditions. the estimated fare is between nt$180 and nt$230 (depending on the actual route, time spent at traffic lights, and traffic conditions). "><span class="category">交通</span><div class="question-zh">我想去台北車站，從這裡搭計程車過去大約需要多少錢呢?</div><div class="question-en">I want to go to Taipei Main Station. How much would a taxi ride from here cost approximately?</div><div class="answer-zh">從集思台大會議中心搭乘計程車前往臺北車站，車程距離約為 4.8 公里，在順暢情況下預計耗時約 15 分鐘。預估車資大約在 NT$ 180 ～ NT$ 230 之間（依實際行駛路線、停等紅綠燈時間與塞車狀況而定）。</div><div class="answer-en">Taking a taxi from the GIS NTU Conference Center to Taipei Main Station is approximately 4.8 kilometers and should take about 15 minutes under normal traffic conditions. The estimated fare is between NT$180 and NT$230 (depending on the actual route, time spent at traffic lights, and traffic conditions).</div></div><div class="card" data-search="交通 我想去xxx，可以幫我叫計程車嗎? i want to go to xxx, could you help me call a taxi? 大會並無提供叫車服務，請利用uber app自行叫車。 the event does not provide a ride-hailing service; please use the uber app to book a ride yourself. "><span class="category">交通</span><div class="question-zh">我想去XXX，可以幫我叫計程車嗎?</div><div class="question-en">I want to go to XXX, could you help me call a taxi?</div><div class="answer-zh">大會並無提供叫車服務，請利用uber app自行叫車。</div><div class="answer-en">The event does not provide a ride-hailing service; please use the Uber app to book a ride yourself.</div></div><div class="card" data-search="交通 請問外國訪客要如何租借ubike? how can foreign visitors rent youbikes? 請下載youbike app，註冊後綁定信用卡，完成 email 驗證，並完成公共自行車傷害險投保，即可使用app 掃描車上的 qr code，開始使用youbike。
+https://en.youbike.com.tw/region/main/ please download the youbike app, register, link your credit card, complete email verification, and purchase public bicycle accident insurance. then, use the app to scan the qr code on the bike to start using youbike.
+
+https://en.youbike.com.tw/region/main/ "><span class="category">交通</span><div class="question-zh">請問外國訪客要如何租借ubike?</div><div class="question-en">How can foreign visitors rent Youbikes?</div><div class="answer-zh">請下載YouBike App，註冊後綁定信用卡，完成 Email 驗證，並完成公共自行車傷害險投保，即可使用App 掃描車上的 QR Code，開始使用YouBike。<br>https://en.youbike.com.tw/region/main/</div><div class="answer-en">Please download the YouBike App, register, link your credit card, complete email verification, and purchase public bicycle accident insurance. Then, use the App to scan the QR code on the bike to start using YouBike.<br><br>https://en.youbike.com.tw/region/main/</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fen.youbike.com.tw%2Fregion%2Fmain%2F" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="交通 捷運營業到幾點? when do mrt close? 請參考台北捷運各站首末班車時間
+https://www.metro.taipei/cp.aspx?n=5298d33851223b04 please refer to the first and last train times for each station on the taipei metro : https://www.metro.taipei/cp.aspx?n=5298d33851223b04 "><span class="category">交通</span><div class="question-zh">捷運營業到幾點?</div><div class="question-en">When do MRT close?</div><div class="answer-zh">請參考台北捷運各站首末班車時間<br>https://www.metro.taipei/cp.aspx?n=5298D33851223B04</div><div class="answer-en">Please refer to the first and last train times for each station on the Taipei Metro : https://www.metro.taipei/cp.aspx?n=5298D33851223B04</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwww.metro.taipei%2Fcp.aspx%3Fn%3D5298D33851223B04" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="交通 搭接駁車去101之後我可以去哪裡 where can i go after taking the shuttle bus to taipei 101? 請參考活動網頁資訊，可儲存我們的pinned google map，與臺大相關的清單可參考其下的"explore taipei city"項目 please refer to the event webpage for information. you can save our pinned google maps. for a list of items related to national taiwan university, please refer to the "explore taipei city" section.
+https://www.google.com/maps/@25.0290457,121.5207579,14z/data=!4m3!11m2!2squx-uni_ngwkkiep9eudgg!3e3?entry=ttu&g_ep=egoymdi2mtawns4wikxmdsoasafqaw%3d%3d
+https://igelu.org/wp-content/uploads/2026/04/pdf2_explore-taipei-city.pdf "><span class="category">交通</span><div class="question-zh">搭接駁車去101之後我可以去哪裡</div><div class="question-en">Where can I go after taking the shuttle bus to Taipei 101?</div><div class="answer-zh">請參考活動網頁資訊，可儲存我們的Pinned google map，與臺大相關的清單可參考其下的"Explore Taipei City"項目</div><div class="answer-en">Please refer to the event webpage for information. You can save our pinned Google Maps. For a list of items related to National Taiwan University, please refer to the "Explore Taipei City" section.<br>https://www.google.com/maps/@25.0290457,121.5207579,14z/data=!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3?entry=ttu&g_ep=EgoyMDI2MTAwNS4wIKXMDSoASAFQAw%3D%3D<br>https://igelu.org/wp-content/uploads/2026/04/PDF2_Explore-Taipei-City.pdf</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwww.google.com%2Fmaps%2F%4025.0290457%2C121.5207579%2C14z%2Fdata%3D!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3%3Fentry%3Dttu%26g_ep%3DEgoyMDI2MTAwNS4wIKXMDSoASAFQAw%253D%253D" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Figelu.org%2Fwp-content%2Fuploads%2F2026%2F04%2FPDF2_Explore-Taipei-City.pdf" alt="QR Code">
+          <div class="qr-label">連結 2</div>
+        </div></div></div><div class="card" data-search="其他 我不小心弄丟我的名牌了 i accidentally lost my name tag. 請出示報到通知email，確認您的報名序號後，將提供空白名牌給您，請自行寫上名字。 please show your registration notification email. after confirming your registration number, we will provide you with a blank name tag. please write your name on it yourself. 確認參加資訊後，提供空白名牌使用"><span class="category">其他</span><div class="question-zh">我不小心弄丟我的名牌了</div><div class="question-en">I accidentally lost my name tag.</div><div class="answer-zh">請出示報到通知email，確認您的報名序號後，將提供空白名牌給您，請自行寫上名字。</div><div class="answer-en">Please show your registration notification email. After confirming your registration number, we will provide you with a blank name tag. Please write your name on it yourself.</div><div class="staff-note"><b>💡 館員補充：</b>確認參加資訊後，提供空白名牌使用</div></div><div class="card" data-search="其他 請問出席證明（certificate of attendance）與收據（receipt）在哪裡領取？ where can i obtain the certificate of attendance and the receipt? 報名時即可於報名系統取得收據，出席證明則為會在會議結束後以信件發送。 you can obtain a receipt from the registration system when you register, and the attendance certificate will be sent by mail after the meeting. 這二樣都是線上取得, 前者在會議結束後才會發出; 後者應該在報名付款後就會收到了"><span class="category">其他</span><div class="question-zh">請問出席證明（Certificate of Attendance）與收據（Receipt）在哪裡領取？</div><div class="question-en">Where can I obtain the Certificate of Attendance and the Receipt?</div><div class="answer-zh">報名時即可於報名系統取得收據，出席證明則為會在會議結束後以信件發送。</div><div class="answer-en">You can obtain a receipt from the registration system when you register, and the attendance certificate will be sent by mail after the meeting.</div><div class="staff-note"><b>💡 館員補充：</b>這二樣都是線上取得, 前者在會議結束後才會發出; 後者應該在報名付款後就會收到了</div></div><div class="card" data-search="其他 我的東西不見了，請問有撿到嗎? my things are missing. has anyone found them? 請洽詢報到台。 please contact the the registration desk. 報到台人員請詢問門口集思人員協尋"><span class="category">其他</span><div class="question-zh">我的東西不見了，請問有撿到嗎?</div><div class="question-en">My things are missing. Has anyone found them?</div><div class="answer-zh">請洽詢報到台。</div><div class="answer-en">Please contact the the registration desk.</div><div class="staff-note"><b>💡 館員補充：</b>報到台人員請詢問門口集思人員協尋</div></div><div class="card" data-search="其他 外面下大雨了，可以借傘嗎? it's raining heavily outside, can i borrow an umbrella? 可以的，現場備有傘具可供使用。 yes, umbrellas are available for use. please contact the the registration desk. 行前通知會請參加人員記得準備雨傘；請行政組整理約20支狀態好的愛心傘備用"><span class="category">其他</span><div class="question-zh">外面下大雨了，可以借傘嗎?</div><div class="question-en">It's raining heavily outside, can I borrow an umbrella?</div><div class="answer-zh">可以的，現場備有傘具可供使用。</div><div class="answer-en">Yes, umbrellas are available for use. Please contact the the registration desk.</div><div class="staff-note"><b>💡 館員補充：</b>行前通知會請參加人員記得準備雨傘；請行政組整理約20支狀態好的愛心傘備用</div></div><div class="card" data-search="其他 沒有報名free tour也可以直接參加嗎？ can i participate in the free tour without having signed up? 因報名已截止，無法再增加人數，敬請見諒 we apologize that registration has closed and no more places can be added. "><span class="category">其他</span><div class="question-zh">沒有報名free tour也可以直接參加嗎？</div><div class="question-en">Can I participate in the free tour without having signed up?</div><div class="answer-zh">因報名已截止，無法再增加人數，敬請見諒</div><div class="answer-en">We apologize that registration has closed and no more places can be added.</div></div><div class="card" data-search="其他 哪裡可以換台幣? where can i exchange ntd? 請至集思會議廳對面的臺灣銀行公館分行
+https://maps.app.goo.gl/15xauuz6cb2d7q7ba please go to the bank of taiwan gongguan branch, opposite the gis conference hall.
+https://maps.app.goo.gl/15xauuz6cb2d7q7ba "><span class="category">其他</span><div class="question-zh">哪裡可以換台幣?</div><div class="question-en">Where can I exchange NTD?</div><div class="answer-zh">請至集思會議廳對面的臺灣銀行公館分行<br>https://maps.app.goo.gl/15XAuuz6cb2D7q7BA</div><div class="answer-en">Please go to the Bank of Taiwan Gongguan Branch, opposite the GIS Conference Hall.<br>https://maps.app.goo.gl/15XAuuz6cb2D7q7BA</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2F15XAuuz6cb2D7q7BA" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="其他 哪裡有atm可以領錢? where can i find an atm to withdraw money? 請上樓至本棟大廳，一樓全家便利商店內就有atm可以領錢 please go upstairs to the lobby of this building. there is an atm inside the familymart convenience store on the first floor where you can withdraw money. "><span class="category">其他</span><div class="question-zh">哪裡有ATM可以領錢?</div><div class="question-en">Where can I find an ATM to withdraw money?</div><div class="answer-zh">請上樓至本棟大廳，一樓全家便利商店內就有ATM可以領錢</div><div class="answer-en">Please go upstairs to the lobby of this building. There is an ATM inside the FamilyMart convenience store on the first floor where you can withdraw money.</div></div><div class="card" data-search="其他 我想自己參觀台大校園，請問有推薦的景點嗎? i'd like to tour the national taiwan university campus on my own. do you have any recommended attractions? 可儲存我們的pinned google map，與臺大相關的清單可參考其下的"discover ntu"項目
+ you can save our pinned google maps; for a list of sites related to national taiwan university, please refer to the "discover ntu" project.
+https://www.google.com/maps/@25.014937,121.5327463,18.54z/data=!4m3!11m2!2squx-uni_ngwkkiep9eudgg!3e3?entry=ttu&g_ep=egoymdi2mdmyos4wikxmdsoasafqaw%3d%3d
+https://igelu.org/wp-content/uploads/2026/08/4.discovery-ntu.pdf "><span class="category">其他</span><div class="question-zh">我想自己參觀台大校園，請問有推薦的景點嗎?</div><div class="question-en">I'd like to tour the National Taiwan University campus on my own. Do you have any recommended attractions?</div><div class="answer-zh">可儲存我們的Pinned google map，與臺大相關的清單可參考其下的"Discover NTU"項目<br></div><div class="answer-en">You can save our pinned Google Maps; for a list of sites related to National Taiwan University, please refer to the "Discover NTU" project.<br>https://www.google.com/maps/@25.014937,121.5327463,18.54z/data=!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3?entry=ttu&g_ep=EgoyMDI2MDMyOS4wIKXMDSoASAFQAw%3D%3D<br>https://igelu.org/wp-content/uploads/2026/08/4.Discovery-NTU.pdf</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwww.google.com%2Fmaps%2F%4025.014937%2C121.5327463%2C18.54z%2Fdata%3D!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3%3Fentry%3Dttu%26g_ep%3DEgoyMDI2MDMyOS4wIKXMDSoASAFQAw%253D%253D" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Figelu.org%2Fwp-content%2Fuploads%2F2026%2F08%2F4.Discovery-NTU.pdf" alt="QR Code">
+          <div class="qr-label">連結 2</div>
+        </div></div></div><div class="card" data-search="其他 我想自己走去台大圖書館看看，請問怎麼走? i'd like to walk to the national taiwan university library by myself. could you please tell me how to get there? 請參考google map定位https://maps.app.goo.gl/fow5ghbajawvt8qh9，進入後，我們有閘門管制，您名牌上的qrcode可直接掃描進館 please refer to google maps for location: 
+https://maps.app.goo.gl/fow5ghbajawvt8qh9once inside, there are gate controls; you can scan the qr code on your name tag to enter ntu library. "><span class="category">其他</span><div class="question-zh">我想自己走去台大圖書館看看，請問怎麼走?</div><div class="question-en">I'd like to walk to the National Taiwan University Library by myself. Could you please tell me how to get there?</div><div class="answer-zh">請參考google map定位https://maps.app.goo.gl/fow5gHBaJAwVT8qH9，進入後，我們有閘門管制，您名牌上的QRcode可直接掃描進館</div><div class="answer-en">Please refer to Google Maps for location: <br>https://maps.app.goo.gl/fow5gHBaJAwVT8qH9Once inside, there are gate controls; you can scan the QR code on your name tag to enter NTU Library.</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2Ffow5gHBaJAwVT8qH9%EF%BC%8C%E9%80%B2%E5%85%A5%E5%BE%8C%EF%BC%8C%E6%88%91%E5%80%91%E6%9C%89%E9%96%98%E9%96%80%E7%AE%A1%E5%88%B6%EF%BC%8C%E6%82%A8%E5%90%8D%E7%89%8C%E4%B8%8A%E7%9A%84QRcode%E5%8F%AF%E7%9B%B4%E6%8E%A5%E6%8E%83%E6%8F%8F%E9%80%B2%E9%A4%A8" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2Ffow5gHBaJAwVT8qH9Once" alt="QR Code">
+          <div class="qr-label">連結 2</div>
+        </div></div></div><div class="card" data-search="其他 台大校內有哪些博物館可以參觀？ what museums are available to visit on the national taiwan university campus? 可儲存我們的pinned google map，與臺大相關的清單可參考其下的"discover ntu"項目
+ you can save our pinned google maps; for a list of sites related to national taiwan university, please refer to the "discover ntu" project.
+https://www.google.com/maps/@25.014937,121.5327463,18.54z/data=!4m3!11m2!2squx-uni_ngwkkiep9eudgg!3e3?entry=ttu&g_ep=egoymdi2mdmyos4wikxmdsoasafqaw%3d%3d
+https://igelu.org/wp-content/uploads/2026/08/4.discovery-ntu.pdf "><span class="category">其他</span><div class="question-zh">台大校內有哪些博物館可以參觀？</div><div class="question-en">What museums are available to visit on the National Taiwan University campus?</div><div class="answer-zh">可儲存我們的Pinned google map，與臺大相關的清單可參考其下的"Discover NTU"項目<br></div><div class="answer-en">You can save our pinned Google Maps; for a list of sites related to National Taiwan University, please refer to the "Discover NTU" project.<br>https://www.google.com/maps/@25.014937,121.5327463,18.54z/data=!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3?entry=ttu&g_ep=EgoyMDI2MDMyOS4wIKXMDSoASAFQAw%3D%3D<br>https://igelu.org/wp-content/uploads/2026/08/4.Discovery-NTU.pdf</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwww.google.com%2Fmaps%2F%4025.014937%2C121.5327463%2C18.54z%2Fdata%3D!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3%3Fentry%3Dttu%26g_ep%3DEgoyMDI2MDMyOS4wIKXMDSoASAFQAw%253D%253D" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Figelu.org%2Fwp-content%2Fuploads%2F2026%2F08%2F4.Discovery-NTU.pdf" alt="QR Code">
+          <div class="qr-label">連結 2</div>
+        </div></div></div><div class="card" data-search="其他 我想看看台北的美術館 i want to visit the taipei art museum. 台北市立美術館(近捷運圓山站)
+https://maps.app.goo.gl/durqv7v3wnr8tzj68
+
+台北當代藝術館 moca taipei (近捷運中山站)
+https://maps.app.goo.gl/dm5oldvftzs8xgbu8
+
+富邦美術館 (近捷運市政府站、台北101/世貿站)
+https://maps.app.goo.gl/xr4nhvcfx9jptftq8 taipei fine arts museum (near yuanshan mrt station)
+https://maps.app.goo.gl/durqv7v3wnr8tzj68
+
+museum of contemporary art taipei (moca taipei) (near zhongshan mrt station)
+https://maps.app.goo.gl/dm5oldvftzs8xgbu8
+
+fubon museum of art (near taipei city hall mrt station, taipei 101/world trade center station)
+https://maps.app.goo.gl/xr4nhvcfx9jptftq8 "><span class="category">其他</span><div class="question-zh">我想看看台北的美術館</div><div class="question-en">I want to visit the Taipei Art Museum.</div><div class="answer-zh">台北市立美術館(近捷運圓山站)<br>https://maps.app.goo.gl/duRQV7v3WnR8TZJ68<br><br>台北當代藝術館 MoCA TAIPEI (近捷運中山站)<br>https://maps.app.goo.gl/dm5oLdvFTzs8XGbU8<br><br>富邦美術館 (近捷運市政府站、台北101/世貿站)<br>https://maps.app.goo.gl/XR4nhVcfx9jptFTq8</div><div class="answer-en">Taipei Fine Arts Museum (near Yuanshan MRT Station)<br>https://maps.app.goo.gl/duRQV7v3WnR8TZJ68<br><br>Museum of Contemporary Art Taipei (MoCA TAIPEI) (near Zhongshan MRT Station)<br>https://maps.app.goo.gl/dm5oLdvFTzs8XGbU8<br><br>Fubon Museum of Art (near Taipei City Hall MRT Station, Taipei 101/World Trade Center Station)<br>https://maps.app.goo.gl/XR4nhVcfx9jptFTq8</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FduRQV7v3WnR8TZJ68" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2Fdm5oLdvFTzs8XGbU8" alt="QR Code">
+          <div class="qr-label">連結 2</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FXR4nhVcfx9jptFTq8" alt="QR Code">
+          <div class="qr-label">連結 3</div>
+        </div></div></div><div class="card" data-search="其他 故宮怎麼去? how do i get to the national palace museum? 在捷運士林站1號出口，轉乘公車紅30、255、815、小18、小19、304、300，或直接搭乘計程車前往。
+https://maps.app.goo.gl/dukbu5amzxvlrniv8 at shilin mrt station, exit 1, transfer to bus routes red 30, 255, 815, small 18, small 19, 304, or 300, or take a taxi directly.
+https://maps.app.goo.gl/dukbu5amzxvlrniv8 "><span class="category">其他</span><div class="question-zh">故宮怎麼去?</div><div class="question-en">How do I get to the National Palace Museum?</div><div class="answer-zh">在捷運士林站1號出口，轉乘公車紅30、255、815、小18、小19、304、300，或直接搭乘計程車前往。<br>https://maps.app.goo.gl/DUKbU5amZxVLrNiV8</div><div class="answer-en">At Shilin MRT Station, Exit 1, transfer to bus routes Red 30, 255, 815, Small 18, Small 19, 304, or 300, or take a taxi directly.<br>https://maps.app.goo.gl/DUKbU5amZxVLrNiV8</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FDUKbU5amZxVLrNiV8" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="其他 我想買台大的紀念品，可以去哪裡買? i want to buy souvenirs from national taiwan university. where can i buy them? 10/20會有攤位在現場，位置請參考平面圖，其他時間歡迎至：
+
+臺大出版中心書店
+https://press.ntu.edu.tw/en/about/index.php?act=stores
+
+臺大新月台
+https://share.google/f59rdupwqb0lok4t6 there will be a booth on october 20th; please refer to the floor plan for the location. at other times, you are welcome to visit:
+
+ntu publishing center bookstore
+https://press.ntu.edu.tw/en/about/index.php?act=stores
+
+ntu crescent terrace
+https://share.google/f59rdupwqb0lok4t6 會議休息時間，廳內的投影片會提供平面圖；app也會提供
+提醒來賓出版中心及新月台的營業時間: 
+出版中心: 一至五 9-17
+新月台: 二至日10-18 (據說每日變動, 記得當場確認)"><span class="category">其他</span><div class="question-zh">我想買台大的紀念品，可以去哪裡買?</div><div class="question-en">I want to buy souvenirs from National Taiwan University. Where can I buy them?</div><div class="answer-zh">10/20會有攤位在現場，位置請參考平面圖，其他時間歡迎至：<br><br>臺大出版中心書店<br>https://press.ntu.edu.tw/en/about/index.php?act=stores<br><br>臺大新月台<br>https://share.google/f59rduPwqB0LoK4T6</div><div class="answer-en">There will be a booth on October 20th; please refer to the floor plan for the location. At other times, you are welcome to visit:<br><br>NTU Publishing Center Bookstore<br>https://press.ntu.edu.tw/en/about/index.php?act=stores<br><br>NTU Crescent Terrace<br>https://share.google/f59rduPwqB0LoK4T6</div><div class="staff-note"><b>💡 館員補充：</b>會議休息時間，廳內的投影片會提供平面圖；APP也會提供
+提醒來賓出版中心及新月台的營業時間: 
+出版中心: 一至五 9-17
+新月台: 二至日10-18 (據說每日變動, 記得當場確認)</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fpress.ntu.edu.tw%2Fen%2Fabout%2Findex.php%3Fact%3Dstores" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fshare.google%2Ff59rduPwqB0LoK4T6" alt="QR Code">
+          <div class="qr-label">連結 2</div>
+        </div></div></div><div class="card" data-search="其他 我買的紀念品可以免稅嗎? can the souvenirs i purchased be tax-free? 無法辦理退稅 unable to process tax refund "><span class="category">其他</span><div class="question-zh">我買的紀念品可以免稅嗎?</div><div class="question-en">Can the souvenirs I purchased be tax-free?</div><div class="answer-zh">無法辦理退稅</div><div class="answer-en">Unable to process tax refund</div></div><div class="card" data-search="其他 台大附近的小北百貨/生活百貨在哪裡? where are the xiaobei department store/lifestyle department stores near national taiwan university? 請參考活動網站說明：可儲存我們的pinned google map，與日常需求相關的設施清單請參考"life & activity"
+光南大批發 臺北公館店
+https://maps.app.goo.gl/n61gjrwubcqfpl8p9
+
+poya寶雅 台北公館店
+https://maps.app.goo.gl/uggevzppbhctgfr59
+
+小北百貨-台北寧夏店
+https://maps.app.goo.gl/dk9u8l8rszaj2nxe8 please refer to the event website for instructions: you can save our pinned google map. for a list of facilities related to daily needs, please refer to "life & activity". 
+guangnan wholesale market, taipei gongguan store
+https://maps.app.goo.gl/n61gjrwubcqfpl8p9
+
+poya, taipei gongguan store
+https://maps.app.goo.gl/uggevzppbhctgfr59
+
+xiaobei department store - taipei ningxia store
+https://maps.app.goo.gl/dk9u8l8rszaj2nxe8 "><span class="category">其他</span><div class="question-zh">台大附近的小北百貨/生活百貨在哪裡?</div><div class="question-en">Where are the Xiaobei Department Store/Lifestyle Department Stores near National Taiwan University?</div><div class="answer-zh">請參考活動網站說明：可儲存我們的Pinned google map，與日常需求相關的設施清單請參考"Life & Activity"<br>光南大批發 臺北公館店<br>https://maps.app.goo.gl/n61GJRwuBcqFpL8p9<br><br>POYA寶雅 台北公館店<br>https://maps.app.goo.gl/ugGevZppBhCtgfr59<br><br>小北百貨-台北寧夏店<br>https://maps.app.goo.gl/DK9u8L8rSZaj2NXE8</div><div class="answer-en">Please refer to the event website for instructions: You can save our pinned Google Map. For a list of facilities related to daily needs, please refer to "Life & Activity". <br>Guangnan Wholesale Market, Taipei Gongguan Store<br>https://maps.app.goo.gl/n61GJRwuBcqFpL8p9<br><br>POYA, Taipei Gongguan Store<br>https://maps.app.goo.gl/ugGevZppBhCtgfr59<br><br>Xiaobei Department Store - Taipei Ningxia Store<br>https://maps.app.goo.gl/DK9u8L8rSZaj2NXE8</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2Fn61GJRwuBcqFpL8p9" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FugGevZppBhCtgfr59" alt="QR Code">
+          <div class="qr-label">連結 2</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FDK9u8L8rSZaj2NXE8" alt="QR Code">
+          <div class="qr-label">連結 3</div>
+        </div></div></div><div class="card" data-search="其他 與會者寄放的行李，放在哪裡？ where do attendees store their luggage? 請洽詢報到台。 please contact the the registration desk. "><span class="category">其他</span><div class="question-zh">與會者寄放的行李，放在哪裡？</div><div class="question-en">Where do attendees store their luggage?</div><div class="answer-zh">請洽詢報到台。</div><div class="answer-en">Please contact the the registration desk.</div></div><div class="card" data-search="其他 行李寄放服務提供到何時? until when is the luggage storage service available? 10/19、21及22有提供，請洽報到台服務人員協助，並請在行李寄放牌註記的時間前，領回您的行李 baggage will be provided on october 19, 21, and 22. please contact the register desk for assistance and retrieve your luggage before the time indicated on your baggage tag. "><span class="category">其他</span><div class="question-zh">行李寄放服務提供到何時?</div><div class="question-en">Until when is the luggage storage service available?</div><div class="answer-zh">10/19、21及22有提供，請洽報到台服務人員協助，並請在行李寄放牌註記的時間前，領回您的行李</div><div class="answer-en">Baggage will be provided on October 19, 21, and 22. Please contact the register desk for assistance and retrieve your luggage before the time indicated on your baggage tag.</div></div><div class="card" data-search="其他 看不到報到qrcode怎麼辦 what should i do if i can't see the qr code? 請提供報到序號也可以報到 you can also register by providing your registration number. 若參加者使用純文字郵件，會無法顯示qrcoce圖檔，請直接找報到序號報到"><span class="category">其他</span><div class="question-zh">看不到報到QRcode怎麼辦</div><div class="question-en">What should I do if I can't see the QR code?</div><div class="answer-zh">請提供報到序號也可以報到</div><div class="answer-en">You can also register by providing your registration number.</div><div class="staff-note"><b>💡 館員補充：</b>若參加者使用純文字郵件，會無法顯示QRcoce圖檔，請直接找報到序號報到</div></div><div class="card" data-search="場地 有專門給講者的準備室或休息室嗎？ is there a dedicated preparation room or lounge for speakers? 沒有，可至各間會議室隨意入座 （因投稿踴躍，場地都排滿會議，且往年都沒有提供） no, you may freely sit in any of the meeting rooms (due to the overwhelming number of submissions, all the venues are fully booked for meetings, and this has not been provided in previous years). "><span class="category">場地</span><div class="question-zh">有專門給講者的準備室或休息室嗎？</div><div class="question-en">Is there a dedicated preparation room or lounge for speakers?</div><div class="answer-zh">沒有，可至各間會議室隨意入座 （因投稿踴躍，場地都排滿會議，且往年都沒有提供）</div><div class="answer-en">No, you may freely sit in any of the meeting rooms (due to the overwhelming number of submissions, all the venues are fully booked for meetings, and this has not been provided in previous years).</div></div><div class="card" data-search="場地 我忘記是參加哪一個會議室?要去哪裡詢問? i've forgotten which meeting room i'm attending. where can i ask? 請參考議程，app網站均可查詢 please refer to the agenda, which can be found on the app and website. "><span class="category">場地</span><div class="question-zh">我忘記是參加哪一個會議室?要去哪裡詢問?</div><div class="question-en">I've forgotten which meeting room I'm attending. Where can I ask?</div><div class="answer-zh">請參考議程，app網站均可查詢</div><div class="answer-en">Please refer to the agenda, which can be found on the app and website.</div></div><div class="card" data-search="場地 我想跟一起來的同伴們開個小會議討論一下，請問可以提供討論的空間嗎? i'd like to have a small meeting with my companions to discuss something. would you provide a space for this discussion? 現場沒有多的會議室可提供，歡迎使用走道上的高吧桌，或於休息時間至各會議室 there are not many meeting rooms available on site. you are welcome to use the high bar tables in the hallway, or visit the meeting rooms during breaks. "><span class="category">場地</span><div class="question-zh">我想跟一起來的同伴們開個小會議討論一下，請問可以提供討論的空間嗎?</div><div class="question-en">I'd like to have a small meeting with my companions to discuss something. Would you provide a space for this discussion?</div><div class="answer-zh">現場沒有多的會議室可提供，歡迎使用走道上的高吧桌，或於休息時間至各會議室</div><div class="answer-en">There are not many meeting rooms available on site. You are welcome to use the high bar tables in the hallway, or visit the meeting rooms during breaks.</div></div><div class="card" data-search="場地 空調太冷/熱了，可以調溫度嗎? the air conditioner is too cold/hot, can i adjust the temperature? 我們會請場地管理單位協助調整看看 we will ask the venue management to assist in making adjustments. 若是上午10點前，可能因為空調設備剛開機，室內尚未降溫，可說稍等一下應該會改善"><span class="category">場地</span><div class="question-zh">空調太冷/熱了，可以調溫度嗎?</div><div class="question-en">The air conditioner is too cold/hot, can I adjust the temperature?</div><div class="answer-zh">我們會請場地管理單位協助調整看看</div><div class="answer-en">We will ask the venue management to assist in making adjustments.</div><div class="staff-note"><b>💡 館員補充：</b>若是上午10點前，可能因為空調設備剛開機，室內尚未降溫，可說稍等一下應該會改善</div></div><div class="card" data-search="場地 會議資料應該去哪裡下載呢? where can i download the meeting materials? 僅提供議程及各場次摘要，請參考活動app或igelu網頁都可查詢，每間會議室外面電子看板，也都有該廳整個上午或下午時段的議程 only the agenda and session summaries are provided. please refer to the event app or igelu website for more information. the electronic billboard outside each meeting room also displays the agenda for the entire morning or afternoon session in that room. "><span class="category">場地</span><div class="question-zh">會議資料應該去哪裡下載呢?</div><div class="question-en">Where can I download the meeting materials?</div><div class="answer-zh">僅提供議程及各場次摘要，請參考活動app或IGeLU網頁都可查詢，每間會議室外面電子看板，也都有該廳整個上午或下午時段的議程</div><div class="answer-en">Only the agenda and session summaries are provided. Please refer to the event app or IGeLU website for more information. The electronic billboard outside each meeting room also displays the agenda for the entire morning or afternoon session in that room.</div></div><div class="card" data-search="場地 可以晚一點再離開嗎? 最晚到幾點? can i leave a little later? what's the latest i can leave? 建議活動結束後儘速離開 it is recommended to leave as soon as possible after the event ends. "><span class="category">場地</span><div class="question-zh">可以晚一點再離開嗎? 最晚到幾點?</div><div class="question-en">Can I leave a little later? What's the latest I can leave?</div><div class="answer-zh">建議活動結束後儘速離開</div><div class="answer-en">It is recommended to leave as soon as possible after the event ends.</div></div><div class="card" data-search="場地 廁所在哪裡? where is the bathroom? 請參考場地平面圖 please refer to the site plan. 會議休息時間，廳內的投影片會提供平面圖；app也會提供"><span class="category">場地</span><div class="question-zh">廁所在哪裡?</div><div class="question-en">where is the bathroom?</div><div class="answer-zh">請參考場地平面圖</div><div class="answer-en">Please refer to the site plan.</div><div class="staff-note"><b>💡 館員補充：</b>會議休息時間，廳內的投影片會提供平面圖；APP也會提供</div></div><div class="card" data-search="場地 垃圾桶在哪裡? where is the trash can? coffe/snacks及food & drinks區域附近都會有垃圾桶及廚餘桶 there are trash cans and food waste bins near the coffee/snacks and food & drinks areas. 會議休息時間，廳內的投影片會提供平面圖；app也會提供"><span class="category">場地</span><div class="question-zh">垃圾桶在哪裡?</div><div class="question-en">Where is the trash can?</div><div class="answer-zh">Coffe/Snacks及Food & drinks區域附近都會有垃圾桶及廚餘桶</div><div class="answer-en">There are trash cans and food waste bins near the Coffee/Snacks and Food & Drinks areas.</div><div class="staff-note"><b>💡 館員補充：</b>會議休息時間，廳內的投影片會提供平面圖；APP也會提供</div></div><div class="card" data-search="場地 哪裡可以回收紙類? where can i recycle paper? 請直接丟入垃圾桶，清潔人員會後續處理 please dispose of it directly into the trash can; cleaning staff will handle it accordingly. 會議休息時間，廳內的投影片會提供平面圖；app也會提供"><span class="category">場地</span><div class="question-zh">哪裡可以回收紙類?</div><div class="question-en">Where can I recycle paper?</div><div class="answer-zh">請直接丟入垃圾桶，清潔人員會後續處理</div><div class="answer-en">Please dispose of it directly into the trash can; cleaning staff will handle it accordingly.</div><div class="staff-note"><b>💡 館員補充：</b>會議休息時間，廳內的投影片會提供平面圖；APP也會提供</div></div><div class="card" data-search="場地 我是穆斯林，請問有祈禱室可以使用嗎? i am a muslim. is there a prayer room available for me? 集思10/19-21：附近沒有穆斯林祈禱室，建議使用禮賢樓(卓聯)商場1f的哺集乳室或捷運公館站的2號出口的哺集乳室
+本館10/22：請至對面使用祈禱室 gisntu (10/19-21): there is no muslim prayer room nearby. we recommend using the breastfeeding room on the 1st floor of lixianlou (zhuolian) shopping mall or the breastfeeding room at exit 2 of gongguan mrt station.
+https://maps.app.goo.gl/fqgnnumvejmavnyt8
+https://maps.app.goo.gl/dmlmtzqp6y5i8ukv7
+ntu library (10/22): please use the prayer room opposite the conference hall. ★為便利與會者使用總圖祈禱室，igelu期間會讓這些與會者改押igelu名牌（平常要押護照）借用祈禱室門禁卡
+
+★台大校內祈禱室：
+台大圖書館b1祈禱室 (ntu library b1 prayer room)
+博雅教學館1樓 101教室旁（boya lecture building 1 floor next to room 101）"><span class="category">場地</span><div class="question-zh">我是穆斯林，請問有祈禱室可以使用嗎?</div><div class="question-en">I am a Muslim. Is there a prayer room available for me?</div><div class="answer-zh">集思10/19-21：附近沒有穆斯林祈禱室，建議使用禮賢樓(卓聯)商場1F的哺集乳室或捷運公館站的2號出口的哺集乳室<br>本館10/22：請至對面使用祈禱室</div><div class="answer-en">GISNTU (10/19-21): There is no Muslim prayer room nearby. We recommend using the breastfeeding room on the 1st floor of Lixianlou (Zhuolian) Shopping Mall or the breastfeeding room at Exit 2 of Gongguan MRT Station.<br>https://maps.app.goo.gl/fQGnnUMVejmavNYt8<br>https://maps.app.goo.gl/DMLmTZQP6Y5i8UKv7<br>NTU Library (10/22): Please use the prayer room opposite the Conference Hall.</div><div class="staff-note"><b>💡 館員補充：</b>★為便利與會者使用總圖祈禱室，igelu期間會讓這些與會者改押igelu名牌（平常要押護照）借用祈禱室門禁卡
+
+★台大校內祈禱室：
+台大圖書館B1祈禱室 (NTU Library B1 Prayer Room)
+博雅教學館1樓 101教室旁（BOYA Lecture Building 1 Floor next to room 101）</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FfQGnnUMVejmavNYt8" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FDMLmTZQP6Y5i8UKv7" alt="QR Code">
+          <div class="qr-label">連結 2</div>
+        </div></div></div><div class="card" data-search="場地 請問有哺集乳室可以使用嗎? is there a breastfeeding room available for use? 請使用禮賢樓(卓聯)商場1f的哺集乳室。可直接進入使用，開放時間：週一~週日 am8-pm8。 please use the breastfeeding room on the 1st floor of lixianlou (zhuolian) shopping mall. you can enter directly. opening hours: monday to sunday, 8 am to 8 pm.
+https://maps.app.goo.gl/fqgnnumvejmavnyt8 "><span class="category">場地</span><div class="question-zh">請問有哺集乳室可以使用嗎?</div><div class="question-en">Is there a breastfeeding room available for use?</div><div class="answer-zh">請使用禮賢樓(卓聯)商場1F的哺集乳室。可直接進入使用，開放時間：週一~週日 AM8-PM8。</div><div class="answer-en">Please use the breastfeeding room on the 1st floor of Lixianlou (Zhuolian) Shopping Mall. You can enter directly. Opening hours: Monday to Sunday, 8 AM to 8 PM.<br>https://maps.app.goo.gl/fQGnnUMVejmavNYt8</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FfQGnnUMVejmavNYt8" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="場地 我可以帶我的家人或朋友參觀台大圖書館嗎? can i bring my family or friends to visit the national taiwan university library? igelu與會者直接刷會議名牌入館，若有其他同行朋友、家人也想入館或參觀，請依照本館校外人士換證入館之相關規定，需年滿18歲，本國籍校外人士憑中華民國核發之身分證、駕照、健保卡，非本國籍校外人士憑所屬國核發之護照換取臨時閱覽證入館。 igelu attendees can enter the library by swiping their conference name tags. if other accompanying friends or family members also wish to enter or visit the library, please follow the library's regulations for non-university personnel to exchange their cards for entry. they must be at least 18 years old. foreigners can exchange their passports issued by their country of origin for temporary reading cards to enter the library. "><span class="category">場地</span><div class="question-zh">我可以帶我的家人或朋友參觀台大圖書館嗎?</div><div class="question-en">Can I bring my family or friends to visit the National Taiwan University Library?</div><div class="answer-zh">IGeLU與會者直接刷會議名牌入館，若有其他同行朋友、家人也想入館或參觀，請依照本館校外人士換證入館之相關規定，需年滿18歲，本國籍校外人士憑中華民國核發之身分證、駕照、健保卡，非本國籍校外人士憑所屬國核發之護照換取臨時閱覽證入館。</div><div class="answer-en">IGeLU attendees can enter the library by swiping their conference name tags. If other accompanying friends or family members also wish to enter or visit the library, please follow the library's regulations for non-university personnel to exchange their cards for entry. They must be at least 18 years old. Foreigners can exchange their passports issued by their country of origin for temporary reading cards to enter the library.</div></div><div class="card" data-search="場地 哪裡可以吸菸？ where can i smoke? 建築物內請勿吸菸，如需吸菸請至戶外。 smoking is prohibited inside the building. if you need to smoke, please go outside. "><span class="category">場地</span><div class="question-zh">哪裡可以吸菸？</div><div class="question-en">Where can I smoke?</div><div class="answer-zh">建築物內請勿吸菸，如需吸菸請至戶外。</div><div class="answer-en">Smoking is prohibited inside the building. If you need to smoke, please go outside.</div></div><div class="card" data-search="場地 不想進去會議室有沒有哪裡可以休息 if i don't want to go into the meeting room, is there anywhere i can rest? 國際會議廳有plenary session(全體會議)的時段，其他廳別因沒有使用而閒置，所以可以進入其他廳別休息。而沒有plenary session(全體會議)的時段，國際會議廳可以提供休息。 when a plenary session is in progress, you may rest in other halls that are currently idle. when no plenary session is taking place, the forum is available for rest. "><span class="category">場地</span><div class="question-zh">不想進去會議室有沒有哪裡可以休息</div><div class="question-en">If I don't want to go into the meeting room, is there anywhere I can rest?</div><div class="answer-zh">國際會議廳有Plenary session(全體會議)的時段，其他廳別因沒有使用而閒置，所以可以進入其他廳別休息。而沒有Plenary session(全體會議)的時段，國際會議廳可以提供休息。</div><div class="answer-en">When a plenary session is in progress, you may rest in other halls that are currently idle. When no plenary session is taking place, the Forum is available for rest.</div></div><div class="card" data-search="工作人員內部 會場有沒有提供廣播？ (公布即時訊息/尋人用) was there an announcement system provided at the venue? (for disseminating real-time information/finding missing persons) 無，即時訊息請參考app no, please refer to the app for real-time information. 若有公告需求，請洽芊儒聯繫主辦單位"><span class="category">工作人員內部</span><div class="question-zh">會場有沒有提供廣播？ (公布即時訊息/尋人用)</div><div class="question-en">Was there an announcement system provided at the venue? (For disseminating real-time information/finding missing persons)</div><div class="answer-zh">無，即時訊息請參考APP</div><div class="answer-en">No, please refer to the APP for real-time information.</div><div class="staff-note"><b>💡 館員補充：</b>若有公告需求，請洽芊儒聯繫主辦單位</div></div><div class="card" data-search="工作人員內部 aed、醫藥箱的位置 location of aed and first-aid kit 醫藥箱在報到台；aed在二活一樓，集思入口處 the first-aid kit is at the registration desk; the aed is on the first floor, near the entrance to gisntu. "><span class="category">工作人員內部</span><div class="question-zh">AED、醫藥箱的位置</div><div class="question-en">Location of AED and first-aid kit</div><div class="answer-zh">醫藥箱在報到台；AED在二活一樓，集思入口處</div><div class="answer-en">The first-aid kit is at the registration desk; the AED is on the first floor, near the entrance to GISNTU.</div></div><div class="card" data-search="工作人員內部 如有即刻的清潔需求，應該找誰? who should i contact if i need immediate cleaning? 我們請清潔人員處理 we can ask the cleaning staff to clean it up. 請同仁通知門口櫃檯集思的人員"><span class="category">工作人員內部</span><div class="question-zh">如有即刻的清潔需求，應該找誰?</div><div class="question-en">Who should I contact if I need immediate cleaning?</div><div class="answer-zh">我們請清潔人員處理</div><div class="answer-en">We can ask the cleaning staff to clean it up.</div><div class="staff-note"><b>💡 館員補充：</b>請同仁通知門口櫃檯集思的人員</div></div><div class="card" data-search="工作人員內部 工作人員在哪裡領便當?用餐地點在哪裡? where do the staff pick up their lunchboxes? where is the dining area? 10/19(一)-10/21(三) 二活605教室。因二活電梯有多個單位共用，請寬估搭電梯時間
+10/22(四) 
+集思：尼采廳領取+用餐；
+總圖：b1報到桌領取，回各自辦公室用餐 october 19 (mon) - october 21 (wed): classroom 605, activity center 2. please allow extra time for elevator use as the elevator is shared by multiple units.
+
+october 22 (thu):
+
+collective ideas: pick up food and have lunch in nietzsche hall;
+
+general location: pick up food at the registration desk on b1, then return to your respective offices for lunch. "><span class="category">工作人員內部</span><div class="question-zh">工作人員在哪裡領便當?用餐地點在哪裡?</div><div class="question-en">Where do the staff pick up their lunchboxes? Where is the dining area?</div><div class="answer-zh">10/19(一)-10/21(三) 二活605教室。因二活電梯有多個單位共用，請寬估搭電梯時間<br>10/22(四) <br>集思：尼采廳領取+用餐；<br>總圖：B1報到桌領取，回各自辦公室用餐</div><div class="answer-en">October 19 (Mon) - October 21 (Wed): Classroom 605, Activity Center 2. Please allow extra time for elevator use as the elevator is shared by multiple units.<br><br>October 22 (Thu):<br><br>Collective Ideas: Pick up food and have lunch in Nietzsche Hall;<br><br>General Location: Pick up food at the registration desk on B1, then return to your respective offices for lunch.</div></div><div class="card" data-search="工作人員內部 工作人員的包包放哪裡?  where do the staff put their bags? 10/19上午請放二活605室，有人看守；其他時間請放報到台，亞里斯多德廳不會上鎖 on the morning of october 19th, please leave your work in room 605 of the second activity hall, where there is a guard; at other times, please leave it at the registration desk, as the aristotle hall will not be locked. "><span class="category">工作人員內部</span><div class="question-zh">工作人員的包包放哪裡? </div><div class="question-en">Where do the staff put their bags?</div><div class="answer-zh">10/19上午請放二活605室，有人看守；其他時間請放報到台，亞里斯多德廳不會上鎖</div><div class="answer-en">On the morning of October 19th, please leave your work in Room 605 of the Second Activity Hall, where there is a guard; at other times, please leave it at the registration desk, as the Aristotle Hall will not be locked.</div></div><div class="card" data-search="工作人員內部 如遇颱風假  if there is a typhoon holiday 若市府宣布停班課，則當天會議取消 if the city government announces a suspension of work and classes, the meeting for that day will be cancelled. "><span class="category">工作人員內部</span><div class="question-zh">如遇颱風假 </div><div class="question-en">If there is a typhoon holiday</div><div class="answer-zh">若市府宣布停班課，則當天會議取消</div><div class="answer-en">If the city government announces a suspension of work and classes, the meeting for that day will be cancelled.</div></div><div class="card" data-search="工作人員內部 發生地震的處理 earthquake handling drop, cover, hold on!
+(工作人員直接做出護頭蹲下或手勢引導方向)
+
+※若需要疏散（大地震或接獲撤離通知）：
+please follow the staff to the emergency exit. take your essential personal belongings, and leave by the stairs.（請跟隨工作人員前往緊急出口。帶上隨身貴重物品，走樓梯撤離。）
+please move in an orderly line and do not use the elevators.（請排隊有序移動，切勿使用電梯。） drop, cover, hold on!
+
+(staff will demonstrate by crouching down and protecting your head, or use hand gestures to guide you.)
+
+※in case of evacuation (major earthquake or receiving an evacuation notice):
+
+please follow the staff to the emergency exit. take your essential personal belongings and leave by the stairs.
+
+please move in an orderly line and do not use the elevators. 需要疏散時，由負責會議室同仁帶領與會者，走樓梯前往1樓出口"><span class="category">工作人員內部</span><div class="question-zh">發生地震的處理</div><div class="question-en">Earthquake handling</div><div class="answer-zh">Drop, Cover, Hold On!<br>(工作人員直接做出護頭蹲下或手勢引導方向)<br><br>※若需要疏散（大地震或接獲撤離通知）：<br>Please follow the staff to the emergency exit. Take your essential personal belongings, and leave by the stairs.（請跟隨工作人員前往緊急出口。帶上隨身貴重物品，走樓梯撤離。）<br>Please move in an orderly line and do NOT use the elevators.（請排隊有序移動，切勿使用電梯。）</div><div class="answer-en">Drop, Cover, Hold On!<br><br>(Staff will demonstrate by crouching down and protecting your head, or use hand gestures to guide you.)<br><br>※In case of evacuation (major earthquake or receiving an evacuation notice):<br><br>Please follow the staff to the emergency exit. Take your essential personal belongings and leave by the stairs.<br><br>Please move in an orderly line and do not use the elevators.</div><div class="staff-note"><b>💡 館員補充：</b>需要疏散時，由負責會議室同仁帶領與會者，走樓梯前往1樓出口</div></div><div class="card" data-search="衛生 我不小心打翻水/飲料了，桌面/地板濕掉了 i accidentally spilled water/drink, and the table/floor got wet. 我們請清潔人員處理 we can ask the cleaning staff to clean it up. 請同仁通知門口櫃檯集思的人員"><span class="category">衛生</span><div class="question-zh">我不小心打翻水/飲料了，桌面/地板濕掉了</div><div class="question-en">I accidentally spilled water/drink, and the table/floor got wet.</div><div class="answer-zh">我們請清潔人員處理</div><div class="answer-en">We can ask the cleaning staff to clean it up.</div><div class="staff-note"><b>💡 館員補充：</b>請同仁通知門口櫃檯集思的人員</div></div><div class="card" data-search="衛生 洗手間的衛生紙沒有了 there's no toilet paper in the bathroom. 我們請清潔人員處理 we can ask the cleaning staff to clean it up. 請同仁通知門口櫃檯集思的人員"><span class="category">衛生</span><div class="question-zh">洗手間的衛生紙沒有了</div><div class="question-en">There's no toilet paper in the bathroom.</div><div class="answer-zh">我們請清潔人員處理</div><div class="answer-en">We can ask the cleaning staff to clean it up.</div><div class="staff-note"><b>💡 館員補充：</b>請同仁通知門口櫃檯集思的人員</div></div><div class="card" data-search="衛生 有酒精/乾洗手 可以消毒雙手嗎? can i disinfect my hands with alcohol-based hand sanitizer? 於coffe/snacks及food & drinks的餐檯提供 available at the coffee/snacks and food & drinks counter "><span class="category">衛生</span><div class="question-zh">有酒精/乾洗手 可以消毒雙手嗎?</div><div class="question-en">Can I disinfect my hands with alcohol-based hand sanitizer?</div><div class="answer-zh">於Coffe/Snacks及Food & drinks的餐檯提供</div><div class="answer-en">Available at the Coffee/Snacks and Food & Drinks counter</div></div><div class="card" data-search="衛生 我不小心割傷手了，請問有醫藥箱嗎? i accidentally cut my hand. do you have a first-aid kit? 請洽報到台 please contact the reporting desk. "><span class="category">衛生</span><div class="question-zh">我不小心割傷手了，請問有醫藥箱嗎?</div><div class="question-en">I accidentally cut my hand. Do you have a first-aid kit?</div><div class="answer-zh">請洽報到台</div><div class="answer-en">Please contact the reporting desk.</div></div><div class="card" data-search="衛生 我有點不舒服，附近有可用英文溝通的藥局或醫院嗎? i'm not feeling well. are there any pharmacies or hospitals nearby where i can speak english? 請參考活動網站說明：可儲存我們的pinned google map，與日常需求相關的設施清單請參考"life & activity"
+
+國立臺灣大學保健中心
+health center, office of student affairs, ntu
+https://maps.app.goo.gl/yvskppu4f1d7jkjg9
+https://shmc.ntu.edu.tw/en/
+
+三軍總醫院汀州院區
+tri-service general hospital tingjhou branch
+https://maps.app.goo.gl/hgzhrrlanxyeyqhd8
+
+臺大醫院國際門診 
+ntu hospital  – international medical service center
+hours: monday–friday, 9:00–12:00 & 13:30–16:30
+https://www.ntuh.gov.tw/imsc/fpage.action?muid=1827&fid=
+
+臺大醫院急診 
+ntu hospital – emergency department
+hours: 24 hours
+https://maps.app.goo.gl/m4zgpyeqhrrjhut46
+
+古亭藥局
+汀州路三段117號
+https://maps.app.goo.gl/uez8izp1uddvyn748
+https://www.ntuh.gov.tw/imsc/fpage.action?muid=1827&fid= please refer to the event website for instructions: you can save our pinned google map. for a list of facilities related to your daily needs, please refer to "life & activity".
+https://igelu.org/wp-content/uploads/2026/04/pdf3_life-activity.pdf
+
+national taiwan university health center, office of student affairs, ntu
+https://maps.app.goo.gl/yvskppu4f1d7jkjg9
+https://shmc.ntu.edu.tw/en/
+
+tri-service general hospital tingjhou branch
+https://maps.app.goo.gl/hgzhrrlanxyeyqhd8
+
+ntu hospital – international medical service center
+hours: monday–friday, 9:00–12:00 & 13:30–16:30
+https://www.ntuh.gov.tw/imsc/fpage.action?muid=1827&fid=
+
+ntu hospital – emergency department
+hours: 24 hours
+https://maps.app.goo.gl/m4zgpyeqhrrjhut46
+
+guting pharmacy
+no. 117, section 3, tingzhou road
+https://maps.app.goo.gl/uez8izp1uddvyn748
+https://www.ntuh.gov.tw/imsc/fpage.action?muid=1827&fid= "><span class="category">衛生</span><div class="question-zh">我有點不舒服，附近有可用英文溝通的藥局或醫院嗎?</div><div class="question-en">I'm not feeling well. Are there any pharmacies or hospitals nearby where I can speak English?</div><div class="answer-zh">請參考活動網站說明：可儲存我們的Pinned google map，與日常需求相關的設施清單請參考"Life & Activity"<br><br>國立臺灣大學保健中心<br>Health Center, Office of Student Affairs, NTU<br>https://maps.app.goo.gl/YvSkpPu4F1D7JKjG9<br>https://shmc.ntu.edu.tw/en/<br><br>三軍總醫院汀州院區<br>Tri-Service General Hospital Tingjhou Branch<br>https://maps.app.goo.gl/HgzHrrLanXYEYqHd8<br><br>臺大醫院國際門診 <br>NTU Hospital  – International Medical Service Center<br>Hours: Monday–Friday, 9:00–12:00 & 13:30–16:30<br>https://www.ntuh.gov.tw/IMSC/Fpage.action?muid=1827&fid=<br><br>臺大醫院急診 <br>NTU Hospital – Emergency Department<br>Hours: 24 hours<br>https://maps.app.goo.gl/M4ZgPyeqhrrjHut46<br><br>古亭藥局<br>汀州路三段117號<br>https://maps.app.goo.gl/uEZ8iZp1uddvYn748<br>https://www.ntuh.gov.tw/IMSC/Fpage.action?muid=1827&fid=</div><div class="answer-en">Please refer to the event website for instructions: You can save our pinned Google Map. For a list of facilities related to your daily needs, please refer to "Life & Activity".<br>https://igelu.org/wp-content/uploads/2026/04/PDF3_Life-Activity.pdf<br><br>National Taiwan University Health Center, Office of Student Affairs, NTU<br>https://maps.app.goo.gl/YvSkpPu4F1D7JKjG9<br>https://shmc.ntu.edu.tw/en/<br><br>Tri-Service General Hospital Tingjhou Branch<br>https://maps.app.goo.gl/HgzHrrLanXYEYqHd8<br><br>NTU Hospital – International Medical Service Center<br>Hours: Monday–Friday, 9:00–12:00 & 13:30–16:30<br>https://www.ntuh.gov.tw/IMSC/Fpage.action?muid=1827&fid=<br><br>NTU Hospital – Emergency Department<br>Hours: 24 hours<br>https://maps.app.goo.gl/M4ZgPyeqhrrjHut46<br><br>Guting Pharmacy<br>No. 117, Section 3, Tingzhou Road<br>https://maps.app.goo.gl/uEZ8iZp1uddvYn748<br>https://www.ntuh.gov.tw/IMSC/Fpage.action?muid=1827&fid=</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FYvSkpPu4F1D7JKjG9" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fshmc.ntu.edu.tw%2Fen%2F" alt="QR Code">
+          <div class="qr-label">連結 2</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FHgzHrrLanXYEYqHd8" alt="QR Code">
+          <div class="qr-label">連結 3</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwww.ntuh.gov.tw%2FIMSC%2FFpage.action%3Fmuid%3D1827%26fid%3D" alt="QR Code">
+          <div class="qr-label">連結 4</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FM4ZgPyeqhrrjHut46" alt="QR Code">
+          <div class="qr-label">連結 5</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FuEZ8iZp1uddvYn748" alt="QR Code">
+          <div class="qr-label">連結 6</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Figelu.org%2Fwp-content%2Fuploads%2F2026%2F04%2FPDF3_Life-Activity.pdf" alt="QR Code">
+          <div class="qr-label">連結 7</div>
+        </div></div></div><div class="card" data-search="衛生 我需要使用衛生棉，哪裡可以買呢? i need to use sanitary napkins, where can i buy them? 一樓全家便利商店即可購買。 you can purchase it at the familymart convenience store on the first floor. "><span class="category">衛生</span><div class="question-zh">我需要使用衛生棉，哪裡可以買呢?</div><div class="question-en">I need to use sanitary napkins, where can I buy them?</div><div class="answer-zh">一樓全家便利商店即可購買。</div><div class="answer-en">You can purchase it at the FamilyMart convenience store on the first floor.</div></div><div class="card" data-search="衛生 可以提供塑膠袋/嘔吐袋嗎? can you provide plastic bags/vomit bags? 好的！提供一個黑色塑膠袋給您。 okay! here's a black plastic bag for you. 報到台將準備黑色塑膠袋"><span class="category">衛生</span><div class="question-zh">可以提供塑膠袋/嘔吐袋嗎?</div><div class="question-en">Can you provide plastic bags/vomit bags?</div><div class="answer-zh">好的！提供一個黑色塑膠袋給您。</div><div class="answer-en">Okay! Here's a black plastic bag for you.</div><div class="staff-note"><b>💡 館員補充：</b>報到台將準備黑色塑膠袋</div></div><div class="card" data-search="設備 哪裡可以充電? where can i charge my phone? 充電站在柏拉圖廳及阿基米德廳之間。 the charging station is located between the plato hall and the archimedes hall. "><span class="category">設備</span><div class="question-zh">哪裡可以充電?</div><div class="question-en">Where can I charge my phone?</div><div class="answer-zh">充電站在柏拉圖廳及阿基米德廳之間。</div><div class="answer-en">The charging station is located between the Plato Hall and the Archimedes Hall.</div></div><div class="card" data-search="設備 可以借充電線、充電頭嗎? can i borrow a charging cable or charging adapter? 沒有充電線、充電頭可供借用。 there are no charging cables or charging adapters available for borrowing. "><span class="category">設備</span><div class="question-zh">可以借充電線、充電頭嗎?</div><div class="question-en">Can I borrow a charging cable or charging adapter?</div><div class="answer-zh">沒有充電線、充電頭可供借用。</div><div class="answer-en">There are no charging cables or charging adapters available for borrowing.</div></div><div class="card" data-search="設備 我的筆電一直連不上wifi my laptop can't connect to wifi. 請確認輸入的帳號密碼正確，或關閉再重連一次試試看。 please confirm that the account and password you entered are correct, or try closing and reconnecting. "><span class="category">設備</span><div class="question-zh">我的筆電一直連不上WiFi</div><div class="question-en">My laptop can't connect to WiFi.</div><div class="answer-zh">請確認輸入的帳號密碼正確，或關閉再重連一次試試看。</div><div class="answer-en">Please confirm that the account and password you entered are correct, or try closing and reconnecting.</div></div><div class="card" data-search="設備 請問我現在該連哪一個wifi帳號? which wi-fi account should i connect to now? 各間會議室的wifi 帳號密碼都不同、您報到時領到的帆布包內有清單，請選擇您目前位置鄰近的會議室使用，亦可全部輸入，讓裝置自行依訊號強度連線。 each meeting room has a different wi-fi username and password. the list is in the bag you received when you checked in. please select the meeting room closest to your current location, or you can enter all the information and let the device connect automatically based on the signal strength. 可先看對方所在地及/或要去哪間會議室再給出相應答案"><span class="category">設備</span><div class="question-zh">請問我現在該連哪一個wifi帳號?</div><div class="question-en">Which Wi-Fi account should I connect to now?</div><div class="answer-zh">各間會議室的WiFi 帳號密碼都不同、您報到時領到的帆布包內有清單，請選擇您目前位置鄰近的會議室使用，亦可全部輸入，讓裝置自行依訊號強度連線。</div><div class="answer-en">Each meeting room has a different Wi-Fi username and password. The list is in the bag you received when you checked in. Please select the meeting room closest to your current location, or you can enter all the information and let the device connect automatically based on the signal strength.</div><div class="staff-note"><b>💡 館員補充：</b>可先看對方所在地及/或要去哪間會議室再給出相應答案</div></div><div class="card" data-search="設備 會議室有提供轉接頭（hdmi/type-c）或簡報筆嗎？ does the meeting room provide adapters (hdmi/type-c) or presentation pens? 依igelu的官方指引，除developers day的講者外，都請使用會場提供的電腦，有英文介面，並會事先存取您提交到ftp的投影片 according to igelu's official guidelines, except for the speakers at developers day, please use the computers provided in the venue. these computers have an english interface and will have your slides pre-loaded to ftp. "><span class="category">設備</span><div class="question-zh">會議室有提供轉接頭（HDMI/Type-C）或簡報筆嗎？</div><div class="question-en">Does the meeting room provide adapters (HDMI/Type-C) or presentation pens?</div><div class="answer-zh">依IGeLU的官方指引，除developers day的講者外，都請使用會場提供的電腦，有英文介面，並會事先存取您提交到FTP的投影片</div><div class="answer-en">According to IGeLU's official guidelines, except for the speakers at Developers Day, please use the computers provided in the venue. These computers have an English interface and will have your slides pre-loaded to FTP.</div></div><div class="card" data-search="設備 (presenter)我想用自己的筆電進行簡報可以嗎? (presenter) may i use my own laptop for the presentation? 依igelu的官方指引，除developers day的講者外，都請使用會場提供的電腦，有英文介面，並會事先存取您提交到ftp的投影片 according to igelu's official guidelines, except for the speakers at developers day, please use the computers provided in the venue. these computers have an english interface and will have your slides pre-loaded to ftp. "><span class="category">設備</span><div class="question-zh">(presenter)我想用自己的筆電進行簡報可以嗎?</div><div class="question-en">(Presenter) May I use my own laptop for the presentation?</div><div class="answer-zh">依IGeLU的官方指引，除developers day的講者外，都請使用會場提供的電腦，有英文介面，並會事先存取您提交到ftp的投影片</div><div class="answer-en">According to IGeLU's official guidelines, except for the speakers at Developers Day, please use the computers provided in the venue. These computers have an English interface and will have your slides pre-loaded to FTP.</div></div><div class="card" data-search="設備 這裡的插頭型式和電壓是什麼？需要使用轉接頭嗎？ what type of plug and voltage is used here? is an adapter required? 台灣使用type a或b插座，一般電器不需變壓器，詳情可參考活動網頁的說明：https://igelu.org/wp-content/uploads/2026/02/electricity-facility-comp.pdf taiwan uses type a or b sockets, and most appliances do not require a transformer. for details, please refer to the event webpage: https://igelu.org/wp-content/uploads/2026/02/electricity-facility-comp.pdf "><span class="category">設備</span><div class="question-zh">這裡的插頭型式和電壓是什麼？需要使用轉接頭嗎？</div><div class="question-en">What type of plug and voltage is used here? Is an adapter required?</div><div class="answer-zh">台灣使用Type A或B插座，一般電器不需變壓器，詳情可參考活動網頁的說明：https://igelu.org/wp-content/uploads/2026/02/Electricity-facility-comp.pdf</div><div class="answer-en">Taiwan uses Type A or B sockets, and most appliances do not require a transformer. For details, please refer to the event webpage: https://igelu.org/wp-content/uploads/2026/02/Electricity-facility-comp.pdf</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Figelu.org%2Fwp-content%2Fuploads%2F2026%2F02%2FElectricity-facility-comp.pdf" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="設備 我想列印文件，可以用哪邊的設備呢? i want to print a document. which device can i use? 1樓有便利商店，請使用便利商店的列印服務。 there is a convenience store on the first floor. please use the convenience store's printing service. "><span class="category">設備</span><div class="question-zh">我想列印文件，可以用哪邊的設備呢?</div><div class="question-en">I want to print a document. Which device can I use?</div><div class="answer-zh">1樓有便利商店，請使用便利商店的列印服務。</div><div class="answer-en">There is a convenience store on the first floor. Please use the convenience store's printing service.</div></div><div class="card" data-search="設備 有提供即時口譯服務(耳機)嗎? do you offer real-time interpretation services (headphones)? 無 no real-time interpretation services available. "><span class="category">設備</span><div class="question-zh">有提供即時口譯服務(耳機)嗎?</div><div class="question-en">Do you offer real-time interpretation services (headphones)?</div><div class="answer-zh">無</div><div class="answer-en">No real-time interpretation services available.</div></div><div class="card" data-search="設備 這個座位的麥克風故障了 the microphone at this seat is malfunctioning. 請更換座位，我們會通知場地管理單位協助處理 please change seats. we will notify the venue management for assistance. 僅國際會議廳提供座位上的麥克風"><span class="category">設備</span><div class="question-zh">這個座位的麥克風故障了</div><div class="question-en">The microphone at this seat is malfunctioning.</div><div class="answer-zh">請更換座位，我們會通知場地管理單位協助處理</div><div class="answer-en">Please change seats. We will notify the venue management for assistance.</div><div class="staff-note"><b>💡 館員補充：</b>僅國際會議廳提供座位上的麥克風</div></div><div class="card" data-search="設備 我同時有報名線上會議(或是幫同事問)，但進不去會議室，怎麼辦？ i have registered for an online meeting (or asked on behalf of a colleague), but i can't get into the meeting room. what should i do? 會議室不設任何帳號密碼，有連結即可進入，每個會議室均在活動前半小時開放，若無法進入請確認連結正確性。 there are no account or password requirements for the meeting rooms; you can enter simply by clicking the link. each meeting room will open half an hour before the event. if you are unable to enter, please verify that the link is correct. 若聽起來是系統性的問題，請在工作人員群組反映，提供會議室名稱和問題，將轉由直播廠商排查。"><span class="category">設備</span><div class="question-zh">我同時有報名線上會議(或是幫同事問)，但進不去會議室，怎麼辦？</div><div class="question-en">I have registered for an online meeting (or asked on behalf of a colleague), but I can't get into the meeting room. What should I do?</div><div class="answer-zh">會議室不設任何帳號密碼，有連結即可進入，每個會議室均在活動前半小時開放，若無法進入請確認連結正確性。</div><div class="answer-en">There are no account or password requirements for the meeting rooms; you can enter simply by clicking the link. Each meeting room will open half an hour before the event. If you are unable to enter, please verify that the link is correct.</div><div class="staff-note"><b>💡 館員補充：</b>若聽起來是系統性的問題，請在工作人員群組反映，提供會議室名稱和問題，將轉由直播廠商排查。</div></div><div class="card" data-search="飲食 飲水機在哪裡? where is the water dispenser? coffe/snack區域都會有飲水機，我們也提供瓶裝水 there are water dispensers in the coffee/snack area, and we also offer bottled water. 會議休息時間，廳內的投影片會提供平面圖；app也會提供"><span class="category">飲食</span><div class="question-zh">飲水機在哪裡?</div><div class="question-en">Where is the water dispenser?</div><div class="answer-zh">Coffe/Snack區域都會有飲水機，我們也提供瓶裝水</div><div class="answer-en">There are water dispensers in the coffee/snack area, and we also offer bottled water.</div><div class="staff-note"><b>💡 館員補充：</b>會議休息時間，廳內的投影片會提供平面圖；APP也會提供</div></div><div class="card" data-search="飲食 廚餘丟哪裡? where should you dispose of kitchen waste? coffe/snack區域都會有垃圾桶 (不分廚餘) there will be trash cans in both the coffee and snack areas (no separation for food waste). 會議休息時間，廳內的投影片會提供平面圖；app也會提供"><span class="category">飲食</span><div class="question-zh">廚餘丟哪裡?</div><div class="question-en">Where should you dispose of kitchen waste?</div><div class="answer-zh">Coffe/Snack區域都會有垃圾桶 (不分廚餘)</div><div class="answer-en">There will be trash cans in both the coffee and snack areas (no separation for food waste).</div><div class="staff-note"><b>💡 館員補充：</b>會議休息時間，廳內的投影片會提供平面圖；APP也會提供</div></div><div class="card" data-search="飲食 可以帶食物進會議室吃嗎? may i bring food into the meeting room to eat? 10/19-21的用餐區是the forum歡迎入內用餐；10/22的主要用餐區是da vinci廳，若座位不敷使用，其他廳別也都可用餐 the dining area from october 19th to 21st is the forum, where diners are welcome. the main dining area on october 22nd is da vinci hall, but other halls are also available if seating is insufficient. "><span class="category">飲食</span><div class="question-zh">可以帶食物進會議室吃嗎?</div><div class="question-en">May I bring food into the meeting room to eat?</div><div class="answer-zh">10/19-21的用餐區是The forum歡迎入內用餐；10/22的主要用餐區是Da Vinci廳，若座位不敷使用，其他廳別也都可用餐</div><div class="answer-en">The dining area from October 19th to 21st is The Forum, where diners are welcome. The main dining area on October 22nd is Da Vinci Hall, but other halls are also available if seating is insufficient.</div></div><div class="card" data-search="飲食 可以把午餐帶到外面吃嗎? can i take lunch out to eat? 歡迎，可至建築物入口處階梯，或另一側(電梯上樓後左轉，或樓梯上樓後右轉)經管理學院大廳後，至校園內野餐 welcome! you can go to the building entrance stairs, or the other side (turn left after taking the elevator, or turn right after taking the stairs) and walk through the school of management lobby to the campus for a picnic. "><span class="category">飲食</span><div class="question-zh">可以把午餐帶到外面吃嗎?</div><div class="question-en">Can I take lunch out to eat?</div><div class="answer-zh">歡迎，可至建築物入口處階梯，或另一側(電梯上樓後左轉，或樓梯上樓後右轉)經管理學院大廳後，至校園內野餐</div><div class="answer-en">Welcome! You can go to the building entrance stairs, or the other side (turn left after taking the elevator, or turn right after taking the stairs) and walk through the School of Management lobby to the campus for a picnic.</div></div><div class="card" data-search="飲食 咖啡可以拿進會議室嗎? can we bring coffee into the meeting room? 可於用餐期間於建議用餐的會議室飲用，會議期間建議避免 drinks may be consumed in the suggested dining room during meals; however, it is recommended to avoid during meetings. 真的帶進場喝，不須勸導"><span class="category">飲食</span><div class="question-zh">咖啡可以拿進會議室嗎?</div><div class="question-en">Can we bring coffee into the meeting room?</div><div class="answer-zh">可於用餐期間於建議用餐的會議室飲用，會議期間建議避免</div><div class="answer-en">Drinks may be consumed in the suggested dining room during meals; however, it is recommended to avoid during meetings.</div><div class="staff-note"><b>💡 館員補充：</b>真的帶進場喝，不須勸導</div></div><div class="card" data-search="飲食 我需要kosher的餐盒 i need kosher's lunchbox 僅kosher提供專屬餐盒，其他是buffet，請至報到台左側取餐 kosher only provides individual meal boxes; all other meals are buffet style and can be picked up to the left of the information/registration desk. "><span class="category">飲食</span><div class="question-zh">我需要Kosher的餐盒</div><div class="question-en">I need Kosher's lunchbox</div><div class="answer-zh">僅Kosher提供專屬餐盒，其他是Buffet，請至報到台左側取餐</div><div class="answer-en">Kosher only provides individual meal boxes; all other meals are buffet style and can be picked up to the left of the information/registration desk.</div></div><div class="card" data-search="飲食 kosher餐盒發放完畢了? have the kosher meal boxes all been distributed? 很抱歉，餐盒已發放完畢，您可選擇素食餐點(buffet) we're sorry, all the meal boxes have been distributed. you may choose a vegetarian buffet. "><span class="category">飲食</span><div class="question-zh">Kosher餐盒發放完畢了?</div><div class="question-en">Have the Kosher meal boxes all been distributed?</div><div class="answer-zh">很抱歉，餐盒已發放完畢，您可選擇素食餐點(buffet)</div><div class="answer-en">We're sorry, all the meal boxes have been distributed. You may choose a vegetarian buffet.</div></div><div class="card" data-search="飲食 會議蟑螂的應對處理 how to deal with cockroaches at the meeting 會議僅限有事先報名者參加，食物只提供有報名者享用。 the meeting is open to those who have registered in advance, and food will only be provided to registered participants. 贊助攤商皆有報名，可以享用餐點"><span class="category">飲食</span><div class="question-zh">會議蟑螂的應對處理</div><div class="question-en">How to deal with cockroaches at the meeting</div><div class="answer-zh">會議僅限有事先報名者參加，食物只提供有報名者享用。</div><div class="answer-en">The meeting is open to those who have registered in advance, and food will only be provided to registered participants.</div><div class="staff-note"><b>💡 館員補充：</b>贊助攤商皆有報名，可以享用餐點</div></div><div class="card" data-search="飲食 有推薦的公館美食嗎? are there any recommended restaurants near ntu? 請參考活動網站說明：可儲存我們的pinned google map，與美食相關的清單可參考其下的"travel through flavor"項目 please refer to the event website for instructions: you can save our pinned google maps; for a list of food-related items, please refer to the "travel through flavor" section.
+https://www.google.com/maps/@25.0290457,121.5207579,14z/data=!4m3!11m2!2squx-uni_ngwkkiep9eudgg!3e3?entry=ttu&g_ep=egoymdi2mtawns4wikxmdsoasafqaw%3d%3
+https://igelu.org/wp-content/uploads/2026/09/event-page_pinned-map_1_travel-through-flavor_rev-20260529.pdf "><span class="category">飲食</span><div class="question-zh">有推薦的公館美食嗎?</div><div class="question-en">Are there any recommended restaurants near NTU?</div><div class="answer-zh">請參考活動網站說明：可儲存我們的Pinned google map，與美食相關的清單可參考其下的"Travel Through Flavor"項目</div><div class="answer-en">Please refer to the event website for instructions: You can save our pinned Google Maps; for a list of food-related items, please refer to the "Travel Through Flavor" section.<br>https://www.google.com/maps/@25.0290457,121.5207579,14z/data=!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3?entry=ttu&g_ep=EgoyMDI2MTAwNS4wIKXMDSoASAFQAw%3D%3<br>https://igelu.org/wp-content/uploads/2026/09/Event-page_pinned-map_1_Travel-Through-Flavor_rev-20260529.pdf</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwww.google.com%2Fmaps%2F%4025.0290457%2C121.5207579%2C14z%2Fdata%3D!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3%3Fentry%3Dttu%26g_ep%3DEgoyMDI2MTAwNS4wIKXMDSoASAFQAw%253D%253" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Figelu.org%2Fwp-content%2Fuploads%2F2026%2F09%2FEvent-page_pinned-map_1_Travel-Through-Flavor_rev-20260529.pdf" alt="QR Code">
+          <div class="qr-label">連結 2</div>
+        </div></div></div><div class="card" data-search="飲食 附近有___的餐廳嗎？   素食（vegetarian/vegan）、清真（halal）或無麩質（gluten-free） are there any restaurants nearby that are vegetarian, halal, or gluten-free? 請參考活動網站說明：taste taiwan | travel through flavor please refer to the event website for details: taste taiwan | travel through flavor
+https://drive.google.com/file/d/1htachbsqdd4wa1mzujbwsdcgyiuxvvfu/view "><span class="category">飲食</span><div class="question-zh">附近有___的餐廳嗎？   素食（Vegetarian/Vegan）、清真（Halal）或無麩質（Gluten-free）</div><div class="question-en">Are there any restaurants nearby that are vegetarian, halal, or gluten-free?</div><div class="answer-zh">請參考活動網站說明：Taste Taiwan | Travel Through Flavor</div><div class="answer-en">Please refer to the event website for details: Taste Taiwan | Travel Through Flavor<br>https://drive.google.com/file/d/1hTAChbSqdD4wA1mzUJbWsdcgyIUxvvFU/view</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fdrive.google.com%2Ffile%2Fd%2F1hTAChbSqdD4wA1mzUJbWsdcgyIUxvvFU%2Fview" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="飲食 台大的校內美食、農特產品要去哪裡買？  where can i buy delicious food and local agricultural products on campus at national taiwan university? 舟山路農產品展示中心   https://maps.app.goo.gl/nu9xfnevteyyftnv6
+請參考活動網站說明：可儲存我們的pinned google map，與美食相關的清單可參考其下的"travel through flavor"項目  zhoushan road agricultural products exhibition center https://maps.app.goo.gl/nu9xfnevteyyftnv6 
+please refer to the event website for instructions: you can save our pinned google maps; for a list of food-related items, please refer to the "travel through flavor" section.
+https://www.google.com/maps/@25.014937,121.5327463,18.54z/data=!4m3!11m2!2squx-uni_ngwkkiep9eudgg!3e3?entry=ttu&g_ep=egoymdi2mdmyos4wikxmdsoasafqaw%3d%3d
+https://igelu.org/wp-content/uploads/2026/09/event-page_pinned-map_1_travel-through-flavor_rev-20260529.pdf "><span class="category">飲食</span><div class="question-zh">台大的校內美食、農特產品要去哪裡買？ </div><div class="question-en">Where can I buy delicious food and local agricultural products on campus at National Taiwan University?</div><div class="answer-zh">舟山路農產品展示中心   https://maps.app.goo.gl/nU9XfnEVtEyyFTNv6<br>請參考活動網站說明：可儲存我們的Pinned google map，與美食相關的清單可參考其下的"Travel Through Flavor"項目 </div><div class="answer-en">Zhoushan Road Agricultural Products Exhibition Center https://maps.app.goo.gl/nU9XfnEVtEyyFTNv6 <br>Please refer to the event website for instructions: You can save our pinned Google Maps; for a list of food-related items, please refer to the "Travel Through Flavor" section.<br>https://www.google.com/maps/@25.014937,121.5327463,18.54z/data=!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3?entry=ttu&g_ep=EgoyMDI2MDMyOS4wIKXMDSoASAFQAw%3D%3D<br>https://igelu.org/wp-content/uploads/2026/09/Event-page_pinned-map_1_Travel-Through-Flavor_rev-20260529.pdf</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fmaps.app.goo.gl%2FnU9XfnEVtEyyFTNv6" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwww.google.com%2Fmaps%2F%4025.014937%2C121.5327463%2C18.54z%2Fdata%3D!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3%3Fentry%3Dttu%26g_ep%3DEgoyMDI2MDMyOS4wIKXMDSoASAFQAw%253D%253D" alt="QR Code">
+          <div class="qr-label">連結 2</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Figelu.org%2Fwp-content%2Fuploads%2F2026%2F09%2FEvent-page_pinned-map_1_Travel-Through-Flavor_rev-20260529.pdf" alt="QR Code">
+          <div class="qr-label">連結 3</div>
+        </div></div></div><div class="card" data-search="飲食 台大附近推薦的咖啡廳? do you have any recommended cafes near national taiwan university? 歡迎參考google map please refer to google maps
+https://www.google.com/maps/search/coffee+gongguan/@25.0177714,121.5344102,16z?entry=ttu&g_ep=egoymdi2mtawns4wikxmdsoasafqaw%3d%3d "><span class="category">飲食</span><div class="question-zh">台大附近推薦的咖啡廳?</div><div class="question-en">Do you have any recommended cafes near National Taiwan University?</div><div class="answer-zh">歡迎參考google map</div><div class="answer-en">Please refer to Google Maps<br>https://www.google.com/maps/search/coffee+gongguan/@25.0177714,121.5344102,16z?entry=ttu&g_ep=EgoyMDI2MTAwNS4wIKXMDSoASAFQAw%3D%3D</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2Fcoffee%2Bgongguan%2F%4025.0177714%2C121.5344102%2C16z%3Fentry%3Dttu%26g_ep%3DEgoyMDI2MTAwNS4wIKXMDSoASAFQAw%253D%253D" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="飲食 台大附近的超市在哪裡? where are the supermarkets near national taiwan university? 請參考活動網站說明：可儲存我們的pinned google map，與日常需求相關的設施清單請參考"life & activity" please refer to the event website for instructions: you can save our pinned google maps; for a list of facilities related to daily needs, please refer to "life & activity".
+https://www.google.com/maps/@25.014937,121.5327463,18.54z/data=!4m3!11m2!2squx-uni_ngwkkiep9eudgg!3e3?entry=ttu&g_ep=egoymdi2mdmyos4wikxmdsoasafqaw%3d%3d
+https://igelu.org/wp-content/uploads/2026/04/pdf3_life-activity.pdf "><span class="category">飲食</span><div class="question-zh">台大附近的超市在哪裡?</div><div class="question-en">Where are the supermarkets near National Taiwan University?</div><div class="answer-zh">請參考活動網站說明：可儲存我們的Pinned google map，與日常需求相關的設施清單請參考"Life & Activity"</div><div class="answer-en">Please refer to the event website for instructions: You can save our pinned Google Maps; for a list of facilities related to daily needs, please refer to "Life & Activity".<br>https://www.google.com/maps/@25.014937,121.5327463,18.54z/data=!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3?entry=ttu&g_ep=EgoyMDI2MDMyOS4wIKXMDSoASAFQAw%3D%3D<br>https://igelu.org/wp-content/uploads/2026/04/PDF3_Life-Activity.pdf</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwww.google.com%2Fmaps%2F%4025.014937%2C121.5327463%2C18.54z%2Fdata%3D!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3%3Fentry%3Dttu%26g_ep%3DEgoyMDI2MDMyOS4wIKXMDSoASAFQAw%253D%253D" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Figelu.org%2Fwp-content%2Fuploads%2F2026%2F04%2FPDF3_Life-Activity.pdf" alt="QR Code">
+          <div class="qr-label">連結 2</div>
+        </div></div></div><div class="card" data-search="飲食 我想逛夜市，請推薦台大附近的夜市 i'd like to visit a night market. could you recommend one near national taiwan university? 請參考活動網站說明：taiwan–things to do and see! please refer to the event website for instructions: taiwan – things to do and see!
+https://igelu.org/wp-content/uploads/2026/04/promotion_taiwan%e2%80%93things-to-do-and-see.pdf "><span class="category">飲食</span><div class="question-zh">我想逛夜市，請推薦台大附近的夜市</div><div class="question-en">I'd like to visit a night market. Could you recommend one near National Taiwan University?</div><div class="answer-zh">請參考活動網站說明：Taiwan–Things to do and see!</div><div class="answer-en">Please refer to the event website for instructions: Taiwan – Things to do and see!<br>https://igelu.org/wp-content/uploads/2026/04/Promotion_Taiwan%E2%80%93Things-to-do-and-see.pdf</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Figelu.org%2Fwp-content%2Fuploads%2F2026%2F04%2FPromotion_Taiwan%25E2%2580%2593Things-to-do-and-see.pdf" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="飲食 台大最近的速食店在哪裡? where is the nearest fast food restaurant to national taiwan university? 公館捷運站1號出口有麥當勞、台大新生南路側門對面也有麥當勞。集思一樓有subway。請參考活動網站說明：可儲存我們的pinned google map there's a mcdonald's at exit 1 of gongguan mrt station, and another mcdonald's opposite the side entrance of national taiwan university on xinsheng south road. there's a subway on the first floor of gis center. please refer to the event website for details: you can save our pinned google map.
+https://www.google.com/maps/@25.014937,121.5327463,18.54z/data=!4m3!11m2!2squx-uni_ngwkkiep9eudgg!3e3?entry=ttu&g_ep=egoymdi2mdmyos4wikxmdsoasafqaw%3d%3d "><span class="category">飲食</span><div class="question-zh">台大最近的速食店在哪裡?</div><div class="question-en">Where is the nearest fast food restaurant to National Taiwan University?</div><div class="answer-zh">公館捷運站1號出口有麥當勞、台大新生南路側門對面也有麥當勞。集思一樓有Subway。請參考活動網站說明：可儲存我們的Pinned google map</div><div class="answer-en">There's a McDonald's at Exit 1 of Gongguan MRT Station, and another McDonald's opposite the side entrance of National Taiwan University on Xinsheng South Road. There's a Subway on the first floor of GIS Center. Please refer to the event website for details: you can save our pinned Google Map.<br>https://www.google.com/maps/@25.014937,121.5327463,18.54z/data=!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3?entry=ttu&g_ep=EgoyMDI2MDMyOS4wIKXMDSoASAFQAw%3D%3D</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwww.google.com%2Fmaps%2F%4025.014937%2C121.5327463%2C18.54z%2Fdata%3D!4m3!11m2!2squX-uNi_NgWKkIEp9eUDgg!3e3%3Fentry%3Dttu%26g_ep%3DEgoyMDI2MDMyOS4wIKXMDSoASAFQAw%253D%253D" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="飲食 kosher餐盒的來源是哪家餐廳? which restaurant does kosher's lunchbox come from? 猶太潔食實驗室(jewish kosher culinary lab)。請參考：https://www.jtca.org.tw/zh-tw/pages/kosherculinarylab the jewish kosher culinary lab. please refer to: https://www.jtca.org.tw/zh-tw/pages/kosherculinarylab "><span class="category">飲食</span><div class="question-zh">Kosher餐盒的來源是哪家餐廳?</div><div class="question-en">Which restaurant does Kosher's lunchbox come from?</div><div class="answer-zh">猶太潔食實驗室(Jewish Kosher Culinary Lab)。請參考：https://www.jtca.org.tw/zh-TW/pages/kosherculinarylab</div><div class="answer-en">The Jewish Kosher Culinary Lab. Please refer to: https://www.jtca.org.tw/zh-TW/pages/kosherculinarylab</div><div class="qr-grid"><div class="qr-container">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwww.jtca.org.tw%2Fzh-TW%2Fpages%2Fkosherculinarylab" alt="QR Code">
+          <div class="qr-label">連結 1</div>
+        </div></div></div><div class="card" data-search="飲食 有清真友善飲食嗎? are there halal-friendly restaurants? 您可以選擇素食。 you can choose to be vegetarian. "><span class="category">飲食</span><div class="question-zh">有清真友善飲食嗎?</div><div class="question-en">Are there halal-friendly restaurants?</div><div class="answer-zh">您可以選擇素食。</div><div class="answer-en">You can choose to be vegetarian.</div></div><div class="card" data-search="其他 名牌上的qrcode可以做甚麼? what can the qr code on the name tag do? 可用於刷入台大圖書館總館及辜振甫紀念圖書館，歡迎到訪參觀 it can be used to enter the national taiwan university library main branch and the koo chen-fu memorial library. you are welcome to visit. "><span class="category">其他</span><div class="question-zh">名牌上的QRcode可以做甚麼?</div><div class="question-en">What can the QR code on the name tag do?</div><div class="answer-zh">可用於刷入台大圖書館總館及辜振甫紀念圖書館，歡迎到訪參觀</div><div class="answer-en">It can be used to enter the National Taiwan University Library Main Branch and the Koo Chen-fu Memorial Library. You are welcome to visit.</div></div>
+</div>
+<div id="noResult" class="no-result">沒有找到相關的 Q&A 內容</div>
+
+<script>
+function filterQA() {
+  var input = document.getElementById('searchInput').value.toLowerCase().trim();
+  var cards = document.querySelectorAll('.card');
+  var visibleCount = 0;
+
+  cards.forEach(function(card) {
+    var searchData = card.getAttribute('data-search');
+    if (searchData.indexOf(input) !== -1) {
+      card.classList.remove('hidden');
+      visibleCount++;
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+
+  var noResult = document.getElementById('noResult');
+  if (visibleCount === 0) {
+    noResult.style.display = 'block';
+  } else {
+    noResult.style.display = 'none';
+  }
+}
+</script>
+
+</body>
+</html>
